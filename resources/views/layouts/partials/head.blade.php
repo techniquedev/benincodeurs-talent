@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{{ ! empty($title) ? $title.' · ' : '' }}Talent Board Bénin Codeurs</title>
 <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
-<link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+<link rel="icon" href="{{ asset('favicon.png') }}" type="image/png" sizes="64x64">
 <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 <link rel="manifest" href="{{ asset('site.webmanifest') }}">
 @fonts

@@ -28,7 +28,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->passwordReset()
             ->brandName('Talent Board · Admin')
-            ->favicon(asset('favicon.svg'))
+            ->brandLogo(fn () => view('filament.brand'))
+            ->darkModeBrandLogo(fn () => view('filament.brand', ['dark' => true]))
+            ->brandLogoHeight('2.25rem')
+            ->favicon(asset('favicon.png'))
             ->colors([
                 'primary' => Color::hex('#6d2399'),
                 'gray' => Color::Slate,

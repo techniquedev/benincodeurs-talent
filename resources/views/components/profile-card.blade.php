@@ -6,7 +6,7 @@
 @endphp
 <article {{ $attributes->merge(['class' => 'group relative flex flex-col rounded-card bg-white p-5 shadow-lg shadow-night/5 ring-1 ring-line transition hover:-translate-y-0.5 hover:shadow-xl hover:ring-violet/30']) }}>
     @if ($profile->is_featured)
-        <span class="badge absolute top-4 right-4 bg-brand text-lime"><span aria-hidden="true">★</span> À la une</span>
+        <span class="badge absolute top-4 right-4 bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
     @endif
 
     <div class="flex items-center gap-4">
@@ -45,6 +45,6 @@
                 <span class="truncate">{{ $profile->city }}</span>
             @endif
         </span>
-        <span class="shrink-0 font-semibold text-violet group-hover:underline" aria-hidden="true">Voir le profil →</span>
+        <span class="shrink-0 font-semibold text-violet inline-flex items-center gap-1 group-hover:underline" aria-hidden="true">Voir le profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
     </div>
 </article>

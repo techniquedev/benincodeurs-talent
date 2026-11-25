@@ -11,7 +11,7 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title }} · Talent Board Bénin Codeurs</title>
     <link rel="icon" href="/favicon.ico" sizes="48x48">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64">
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; }
@@ -23,9 +23,10 @@
                               radial-gradient(circle at 0% 100%, rgba(212, 240, 31, .14), transparent 40%);
         }
         header { padding: 24px 20px 0; }
-        .logo { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 800; letter-spacing: -.01em; }
-        .logo-mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: #D4F01F; color: #111; font-size: 14px; font-weight: 900; }
-        .logo small { display: block; font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, .7); }
+        .logo { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-size: 14px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; }
+        .logo img { display: block; height: 28px; width: auto; }
+        .logo-sep { width: 1px; height: 24px; background: rgba(255, 255, 255, .35); }
+        @media (min-width: 640px) { .logo { gap: 12px; font-size: 18px; } .logo img { height: 36px; } .logo-sep { height: 32px; } }
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 20px; }
         .box { width: 100%; max-width: 520px; text-align: center; }
         .code { font-size: clamp(72px, 22vw, 128px); line-height: 1; font-weight: 900; letter-spacing: -.04em; color: #D4F01F; margin: 0; }
@@ -43,7 +44,7 @@
 </head>
 <body>
     <header>
-        <a href="/" class="logo"><span class="logo-mark">BC</span><span>Talent Board<small>Bénin Codeurs</small></span></a>
+        <a href="/" class="logo"><img src="/images/logo-benincodeurs.png" alt="Bénin Codeurs" width="555" height="147"><span class="logo-sep" aria-hidden="true"></span><span>Talent Board</span></a>
     </header>
     <main>
         <div class="box">

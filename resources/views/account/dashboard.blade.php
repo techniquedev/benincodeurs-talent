@@ -5,7 +5,7 @@
     $missing = collect($profile->completionChecklist())->where('done', false)->take(4);
 @endphp
 <x-layouts::app title="Mon espace">
-    <h1 class="text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Bonjour {{ $user->first_name }} 👋</h1>
+    <h1 class="text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Bonjour {{ $user->first_name }}</h1>
     <p class="mt-1 text-gray-600">Bienvenue dans ton espace membre du Talent Board.</p>
 
     <div class="mt-6 space-y-6">

@@ -1,6 +1,6 @@
 <x-layouts::app title="Compte en cours de validation">
     <div class="card mx-auto max-w-2xl text-center">
-        <div class="mx-auto grid size-14 place-items-center rounded-full bg-lime text-2xl" aria-hidden="true">⏳</div>
+        <div class="mx-auto grid size-14 place-items-center rounded-full bg-lime text-ink" aria-hidden="true">@svg('heroicon-o-clock', 'size-7', ['aria-hidden' => 'true'])</div>
         <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-brand">Ton compte est en cours de validation par l'équipe</h1>
         <p class="mt-3 text-gray-700">
             Merci {{ $user->first_name }} ! L'équipe Bénin Codeurs vérifie que tu fais partie de la communauté VIP.

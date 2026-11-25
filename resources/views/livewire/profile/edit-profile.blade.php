@@ -58,7 +58,7 @@
                                     'bg-white/20 text-white' => ! $stepDone($number) && $number === $step,
                                     'bg-brand/10 text-brand' => ! $stepDone($number) && $number !== $step,
                                 ])>
-                                    @if ($stepDone($number)) ✓ @else {{ $number }} @endif
+                                    @if ($stepDone($number)) @svg('heroicon-m-check', 'size-4', ['aria-hidden' => 'true']) @else {{ $number }} @endif
                                 </span>
                                 <span class="whitespace-nowrap">{{ $label }}</span>
                             </button>
@@ -229,7 +229,7 @@
                                                 'bg-lime text-ink' => $skill['highlighted'],
                                                 'bg-gray-100 text-gray-400 hover:text-violet' => ! $skill['highlighted'],
                                             ])>
-                                        <span aria-hidden="true">★</span>
+                                        @svg('heroicon-s-star', 'size-5', ['aria-hidden' => 'true'])
                                         <span class="sr-only">{{ $skill['highlighted'] ? 'Mise en avant' : 'Mettre en avant' }}</span>
                                     </button>
                                     <span class="min-w-0 flex-1 font-semibold text-brand">{{ $skillNames[$skill['id']] ?? 'Compétence retirée' }}</span>
@@ -240,7 +240,7 @@
                                         @endforeach
                                     </select>
                                     <button type="button" wire:click="toggleSkill({{ $skill['id'] }})" class="grid size-9 shrink-0 place-items-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-700" title="Retirer">
-                                        <span aria-hidden="true">✕</span><span class="sr-only">Retirer</span>
+                                        @svg('heroicon-m-x-mark', 'size-5', ['aria-hidden' => 'true'])<span class="sr-only">Retirer</span>
                                     </button>
                                 </li>
                             @endforeach
@@ -270,7 +270,7 @@
                                                     'border-brand bg-brand text-white' => $isSelected,
                                                     'border-line bg-white text-gray-700 hover:border-violet hover:text-violet' => ! $isSelected,
                                                 ])>
-                                            @if ($isSelected) <span aria-hidden="true">✓</span> @else <span aria-hidden="true">+</span> @endif
+                                            @if ($isSelected) @svg('heroicon-m-check', 'size-4', ['aria-hidden' => 'true']) @else @svg('heroicon-m-plus', 'size-4', ['aria-hidden' => 'true']) @endif
                                             {{ $skillOption->name }}
                                         </button>
                                     @endforeach
@@ -432,7 +432,7 @@
             {{-- Navigation entre étapes --}}
             <div class="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                 @if ($step > 1)
-                    <button type="button" wire:click="goToStep({{ $step - 1 }})" class="btn-secondary">← Précédent</button>
+                    <button type="button" wire:click="goToStep({{ $step - 1 }})" class="btn-secondary">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Précédent</button>
                 @else
                     <span class="hidden sm:block"></span>
                 @endif

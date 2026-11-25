@@ -11,7 +11,7 @@
 @endphp
 <x-layouts::app :title="$isOwner ? 'Mon profil' : $user->name">
     @if ($canBrowse && ! request()->routeIs('profile.preview'))
-        <a href="{{ str_starts_with(url()->previous(), route('directory')) && url()->previous() !== url()->current() ? url()->previous() : route('directory') }}" class="link inline-flex items-center gap-1 text-sm">← Retour à l'annuaire</a>
+        <a href="{{ str_starts_with(url()->previous(), route('directory')) && url()->previous() !== url()->current() ? url()->previous() : route('directory') }}" class="link inline-flex items-center gap-1 text-sm">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Retour à l'annuaire</a>
     @endif
 
     @if ($isOwner)
@@ -46,7 +46,7 @@
                 <x-avatar :profile="$profile" :user="$user" size="size-24 sm:size-32" text="text-3xl sm:text-4xl" :pixels="320" class="ring-4 ring-white" />
                 <div class="flex flex-wrap gap-1.5 sm:justify-end">
                     @if ($profile->is_featured)
-                        <span class="badge bg-brand text-lime"><span aria-hidden="true">★</span> À la une</span>
+                        <span class="badge bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
                     @endif
                     @if ($profile->availability)
                         <span class="badge {{ $profile->availability->badgeClasses() }}">{{ $profile->availability->label() }}</span>
@@ -70,7 +70,7 @@
                     <div><dt class="sr-only">Expérience</dt><dd>{{ $profile->years_experience === 0 ? "Moins d'un an d'expérience" : $profile->years_experience.' '.($profile->years_experience > 1 ? 'ans' : 'an')." d'expérience" }}</dd></div>
                 @endif
                 @if ($profile->city)
-                    <div><dt class="sr-only">Ville</dt><dd>📍 {{ $profile->city }}</dd></div>
+                    <div><dt class="sr-only">Ville</dt><dd class="inline-flex items-center gap-1">@svg('heroicon-m-map-pin', 'size-4 text-violet', ['aria-hidden' => 'true']) {{ $profile->city }}</dd></div>
                 @endif
                 @if ($profile->work_status)
                     <div>
@@ -119,7 +119,7 @@
                                             'bg-paper' => ! $skill->pivot->is_highlighted,
                                         ])>
                                             <span class="min-w-0 font-semibold text-brand">
-                                                @if ($skill->pivot->is_highlighted) <span aria-hidden="true">★</span><span class="sr-only">Mise en avant :</span> @endif
+                                                @if ($skill->pivot->is_highlighted) @svg('heroicon-s-star', 'inline-block size-3.5 -mt-0.5 text-violet', ['aria-hidden' => 'true'])<span class="sr-only">Mise en avant :</span> @endif
                                                 {{ $skill->name }}
                                             </span>
                                             @if ($skillLevel)
@@ -154,7 +154,7 @@
                                         <p class="mt-1 whitespace-pre-line text-sm text-gray-600">{{ $project->description }}</p>
                                     @endif
                                     @if ($project->url)
-                                        <a href="{{ $project->url }}" target="_blank" rel="noopener noreferrer nofollow" class="link mt-auto inline-flex items-center gap-1 pt-3 text-sm">Voir le projet ↗</a>
+                                        <a href="{{ $project->url }}" target="_blank" rel="noopener noreferrer nofollow" class="link mt-auto inline-flex items-center gap-1 pt-3 text-sm">Voir le projet @svg('heroicon-m-arrow-up-right', 'size-4', ['aria-hidden' => 'true'])</a>
                                     @endif
                                 </div>
                             </article>
@@ -189,7 +189,7 @@
                             @endif
                         @endif
                         @if ($showEmail)
-                            <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">✉️ {{ $user->email }}</a>
+                            <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) {{ $user->email }}</a>
                             @if ($isOwner && ! $profile->email_visible)
                                 <p class="text-xs text-gray-500">E-mail masqué pour les autres membres.</p>
                             @endif
@@ -207,7 +207,7 @@
                         @foreach ($links as $label => $url)
                             <li>
                                 <a href="{{ $url }}" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center justify-between gap-3 rounded-xl bg-paper px-4 py-3 font-semibold text-brand hover:bg-violet/10">
-                                    {{ $label }} <span aria-hidden="true" class="text-violet">↗</span>
+                                    {{ $label }} @svg('heroicon-m-arrow-up-right', 'size-4 text-violet', ['aria-hidden' => 'true'])
                                 </a>
                             </li>
                         @endforeach

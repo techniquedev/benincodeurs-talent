@@ -12,6 +12,7 @@ use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class UserForm
@@ -98,9 +99,13 @@ class UserForm
                     ->placeholder('—')->columnSpanFull(),
                 TextEntry::make('profile_skills')->label('Compétences')
                     ->state(fn (User $record) => $profile($record)?->skills
-                        ->map(fn ($skill) => ($skill->pivot->is_highlighted ? '★ ' : '').$skill->name.' · '.(SkillLevel::tryFrom($skill->pivot->level)?->label() ?? ''))
+                        ->map(fn ($skill) => $skill->name.' · '.(SkillLevel::tryFrom($skill->pivot->level)?->label() ?? ''))
                         ->all() ?? [])
                     ->badge()
+                    ->icon(fn (User $record, string $state): ?Heroicon => $profile($record)?->skills
+                        ->first(fn ($skill) => str_starts_with($state, $skill->name.' · '))?->pivot->is_highlighted ? Heroicon::Star : null)
+                    ->color(fn (User $record, string $state): string => $profile($record)?->skills
+                        ->first(fn ($skill) => str_starts_with($state, $skill->name.' · '))?->pivot->is_highlighted ? 'primary' : 'gray')
                     ->placeholder('Aucune')
                     ->columnSpanFull(),
                 TextEntry::make('profile_projects')->label('Réalisations')

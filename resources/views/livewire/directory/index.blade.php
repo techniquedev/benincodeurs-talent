@@ -106,7 +106,7 @@
 
     @if ($profiles->isEmpty())
         <div class="card mt-4 text-center">
-            <div class="mx-auto grid size-14 place-items-center rounded-full bg-paper text-2xl" aria-hidden="true">🔍</div>
+            <div class="mx-auto grid size-14 place-items-center rounded-full bg-paper text-violet" aria-hidden="true">@svg('heroicon-o-magnifying-glass', 'size-7', ['aria-hidden' => 'true'])</div>
             <h2 class="mt-3 text-lg font-bold text-brand">Aucun membre ne correspond</h2>
             <p class="mt-1 text-sm text-gray-600">
                 @if ($filterCount > 0 || $search !== '')

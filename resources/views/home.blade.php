@@ -45,7 +45,7 @@
                     <div class="mt-4 flex gap-1.5"><span class="badge bg-white/15 text-white">Senior</span><span class="badge bg-white/15 text-white">Ouvert à un emploi</span></div>
                 </div>
                 <div class="relative w-full max-w-sm -rotate-2 rounded-card bg-white p-6 text-gray-900 shadow-2xl shadow-black/40">
-                    <span class="badge absolute top-5 right-5 bg-brand text-lime">★ À la une</span>
+                    <span class="badge absolute top-5 right-5 bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
                     <div class="flex items-center gap-4">
                         <span class="grid size-16 place-items-center rounded-full bg-linear-to-br from-violet to-brand text-xl font-extrabold text-lime">KD</span>
                         <div>
@@ -63,7 +63,7 @@
                         @endforeach
                     </div>
                     <div class="mt-5 flex items-center justify-between text-sm text-gray-500">
-                        <span>📍 Cotonou</span><span class="font-semibold text-violet">Voir le profil →</span>
+                        <span class="inline-flex items-center gap-1">@svg('heroicon-m-map-pin', 'size-4 text-violet', ['aria-hidden' => 'true']) Cotonou</span><span class="inline-flex items-center gap-1 font-semibold text-violet">Voir le profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
                     </div>
                 </div>
             </div>
@@ -95,13 +95,13 @@
                 <h2 id="why" class="text-center text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Pensé pour la communauté</h2>
                 <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ([
-                        ['🔎', 'Trouver vite', 'Recherche et filtres par métier, compétence, niveau, ville et disponibilité.'],
-                        ['🧩', 'Montrer son travail', "Jusqu'à 10 compétences avec ton niveau, et 3 réalisations avec image et lien."],
-                        ['🤝', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
-                        ['🔒', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
+                        ['magnifying-glass', 'Trouver vite', 'Recherche et filtres par métier, compétence, niveau, ville et disponibilité.'],
+                        ['puzzle-piece', 'Montrer son travail', "Jusqu'à 10 compétences avec ton niveau, et 3 réalisations avec image et lien."],
+                        ['users', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
+                        ['lock-closed', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
                     ] as [$icon, $featureTitle, $featureText])
                         <div class="rounded-card bg-paper p-6 ring-1 ring-line">
-                            <span class="text-2xl" aria-hidden="true">{{ $icon }}</span>
+                            <span class="grid size-11 place-items-center rounded-xl bg-brand text-lime" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-6')</span>
                             <h3 class="mt-3 font-bold text-brand">{{ $featureTitle }}</h3>
                             <p class="mt-1 text-sm text-gray-600">{{ $featureText }}</p>
                         </div>

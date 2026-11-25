@@ -40,7 +40,10 @@ COPY --chown=www-data:www-data . .
 COPY --from=vendor --chown=www-data:www-data /app/vendor ./vendor
 COPY --from=assets --chown=www-data:www-data /app/public/build ./public/build
 
+# Assets Filament (CSS, JS, polices) : ignorés par git, donc à publier dans l'image,
+# sinon /admin s'affiche sans style.
 RUN php artisan package:discover --ansi \
+    && php artisan filament:assets --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
 
 ENV APP_ENV=production \
