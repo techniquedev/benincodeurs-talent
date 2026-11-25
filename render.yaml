@@ -77,6 +77,12 @@ services:
       - key: MAIL_FROM_NAME
         value: Bénin Codeurs
 
+      # Vérification VIP à l'inscription (API du site principal)
+      - key: TALENT_VIP_API_URL
+        sync: false        # ex. https://benincodeurs.com/api/talent/vip-check
+      - key: TALENT_VIP_API_TOKEN
+        sync: false        # identique à TALENT_API_TOKEN sur le site principal
+
       # Premier administrateur (créé au démarrage s'il n'existe pas)
       - key: ADMIN_EMAIL
         sync: false

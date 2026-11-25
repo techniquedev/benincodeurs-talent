@@ -32,7 +32,7 @@
                     <a href="{{ route('register') }}" class="btn-primary text-base">Créer mon profil</a>
                     <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">J'ai déjà un compte</a>
                 </div>
-                <p class="mt-5 text-xs text-white/60">Accès réservé aux membres VIP. Chaque compte est validé par l'équipe Bénin Codeurs.</p>
+                <p class="mt-5 text-xs text-white/60">Accès réservé aux membres VIP : ton adhésion est vérifiée dès l'inscription.</p>
             </div>
 
             {{-- Illustration : aperçu de cartes de l'annuaire --}}
@@ -76,9 +76,9 @@
             <h2 id="how" class="text-center text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Comment ça marche</h2>
             <ol class="mt-10 grid gap-5 md:grid-cols-3">
                 @foreach ([
-                    ['Inscris-toi', 'Ton nom, ton e-mail et ton numéro WhatsApp. Confirme ton adresse e-mail.'],
+                    ['Inscris-toi', "Ton e-mail d'adhésion VIP, le code reçu par e-mail, tes informations et ton mot de passe."],
                     ['Remplis ton profil', 'Six étapes courtes, enregistrées au fur et à mesure : métier, niveau, compétences, réalisations, liens.'],
-                    ["Rejoins l'annuaire", "Une fois ton compte validé par l'équipe et ton profil complet, tu apparais dans l'annuaire des membres."],
+                    ["Rejoins l'annuaire", "Dès que ton profil est complet, tu apparais dans l'annuaire des membres."],
                 ] as $i => [$stepTitle, $stepText])
                     <li class="card relative">
                         <span class="grid size-10 place-items-center rounded-full bg-lime text-lg font-extrabold text-ink">{{ $i + 1 }}</span>

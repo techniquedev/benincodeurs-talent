@@ -22,13 +22,14 @@ class MembersOverview extends StatsOverviewWidget
         $listed = Profile::query()->listed()->count();
         $featured = Profile::query()->listed()->where('is_featured', true)->count();
         $approved = (int) ($counts[UserStatus::Approved->value] ?? 0);
+        $newThisWeek = User::query()->where('is_admin', false)->where('created_at', '>=', now()->subDays(7))->count();
 
         return [
-            Stat::make('En attente de validation', (int) ($counts[UserStatus::Pending->value] ?? 0))
-                ->description('À vérifier puis valider')
-                ->descriptionIcon('heroicon-m-clock')
-                ->color('warning')
-                ->url(UserResource::getUrl('index', ['tab' => 'pending'])),
+            Stat::make('Nouveaux inscrits', $newThisWeek)
+                ->description('Ces 7 derniers jours')
+                ->descriptionIcon('heroicon-m-user-plus')
+                ->color('info')
+                ->url(UserResource::getUrl('index')),
             Stat::make('Membres validés', $approved)
                 ->description(((int) ($counts[UserStatus::Suspended->value] ?? 0)).' suspendu(s)')
                 ->descriptionIcon('heroicon-m-check-badge')

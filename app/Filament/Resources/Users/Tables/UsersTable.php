@@ -14,7 +14,9 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -96,28 +98,18 @@ class UsersTable
                 TernaryFilter::make('is_admin')->label('Administrateur'),
             ])
             ->recordActions([
-                self::approveAction(),
+                ViewAction::make()->label('Voir'),
+                EditAction::make()->label('Modifier'),
                 ActionGroup::make([
                     self::featureAction(),
                     self::viewInDirectoryAction(),
+                    self::reactivateAction(),
                     self::suspendAction(),
-                    EditAction::make()->label('Ouvrir la fiche'),
+                    self::deleteAction(),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkAction::make('approveSelected')
-                        ->label('Valider la sélection')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->modalDescription("Chaque membre en attente recevra un e-mail et aura accès à l'annuaire.")
-                        ->action(function (Collection $records) {
-                            $count = $records->reject(fn (User $u) => $u->is_admin || $u->isApproved())
-                                ->each(fn (User $u) => $u->approve())->count();
-                            Notification::make()->title("$count compte(s) validé(s).")->success()->send();
-                        })
-                        ->deselectRecordsAfterCompletion(),
                     BulkAction::make('exportSelected')
                         ->label('Exporter la sélection (CSV)')
                         ->icon('heroicon-o-arrow-down-tray')
@@ -126,19 +118,36 @@ class UsersTable
             ]);
     }
 
-    public static function approveAction(): Action
+    public static function reactivateAction(): Action
     {
-        return Action::make('approve')
-            ->label('Valider')
-            ->icon('heroicon-o-check-circle')
+        return Action::make('reactivate')
+            ->label('Réactiver')
+            ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->requiresConfirmation()
-            ->modalHeading('Valider ce compte ?')
-            ->modalDescription("Le membre recevra un e-mail et aura accès à l'annuaire.")
+            ->modalHeading('Réactiver ce compte ?')
+            ->modalDescription("Le membre retrouvera l'accès au Talent Board.")
             ->visible(fn (User $record) => ! $record->isApproved() && ! $record->is_admin)
             ->action(function (User $record) {
-                $record->approve();
-                Notification::make()->title('Compte validé, e-mail envoyé.')->success()->send();
+                $record->reactivate();
+                Notification::make()->title('Compte réactivé.')->success()->send();
+            });
+    }
+
+    /** Suppression définitive, après confirmation, avec les fichiers du membre. */
+    public static function deleteAction(): DeleteAction
+    {
+        return DeleteAction::make()
+            ->label('Supprimer')
+            ->modalHeading('Supprimer ce compte ?')
+            ->modalDescription('Le compte, le profil, les réalisations et les fichiers du membre seront définitivement supprimés. Cette action est irréversible.')
+            ->modalSubmitActionLabel('Supprimer définitivement')
+            ->successNotificationTitle('Compte supprimé.')
+            ->visible(fn (User $record) => ! $record->is_admin)
+            ->using(function (User $record): bool {
+                $record->deleteWithMedia();
+
+                return true;
             });
     }
 

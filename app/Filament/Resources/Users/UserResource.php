@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Users;
 
-use App\Enums\UserStatus;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Filament\Resources\Users\Schemas\UserForm;
 use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
@@ -28,18 +28,6 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'email';
 
-    public static function getNavigationBadge(): ?string
-    {
-        $pending = User::where('status', UserStatus::Pending)->where('is_admin', false)->count();
-
-        return $pending > 0 ? (string) $pending : null;
-    }
-
-    public static function getNavigationBadgeTooltip(): ?string
-    {
-        return 'Comptes en attente de validation';
-    }
-
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);
@@ -59,6 +47,7 @@ class UserResource extends Resource
     {
         return [
             'index' => ListUsers::route('/'),
+            'view' => ViewUser::route('/{record}'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
     }

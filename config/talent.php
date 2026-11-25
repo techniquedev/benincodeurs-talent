@@ -13,6 +13,16 @@ return [
         'last_name' => env('ADMIN_LAST_NAME', 'Bénin Codeurs'),
     ],
 
+    // Page d'adhésion à la communauté VIP (inscription refusée ou adhésion expirée).
+    'vip_join_url' => 'https://communaute.benincodeurs.com',
+
+    // Code de confirmation envoyé par e-mail pendant l'inscription.
+    'registration' => [
+        'code_ttl_minutes' => 15,
+        'code_max_attempts' => 5,
+        'code_resend_seconds' => 60,
+    ],
+
     // Pays par défaut des numéros WhatsApp.
     'phone_country' => 'BJ',
 

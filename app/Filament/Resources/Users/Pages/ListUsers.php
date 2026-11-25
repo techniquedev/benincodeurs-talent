@@ -30,14 +30,8 @@ class ListUsers extends ListRecords
     /** @return array<string, Tab> */
     public function getTabs(): array
     {
-        $members = fn () => User::query()->where('is_admin', false);
-
         return [
             'all' => Tab::make('Tous'),
-            'pending' => Tab::make('En attente')
-                ->badge(fn () => $members()->where('status', UserStatus::Pending)->count() ?: null)
-                ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', UserStatus::Pending)),
             'approved' => Tab::make('Validés')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', UserStatus::Approved)),
             'suspended' => Tab::make('Suspendus')

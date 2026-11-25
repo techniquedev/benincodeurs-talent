@@ -26,6 +26,13 @@ return [
         'key' => env('BREVO_API_KEY'),
     ],
 
+    // API du site principal qui vérifie l'adhésion VIP à l'inscription (jeton Bearer).
+    'talent_vip' => [
+        'url' => env('TALENT_VIP_API_URL'),
+        'token' => env('TALENT_VIP_API_TOKEN'),
+        'timeout' => 8,
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

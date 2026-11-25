@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Enums\UserStatus;
-use App\Notifications\AccountApproved;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
+use App\Support\Media;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
@@ -27,7 +27,7 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
     use HasFactory, Notifiable;
 
     protected $attributes = [
-        'status' => 'pending',
+        'status' => 'approved',
         'is_admin' => false,
     ];
 
@@ -85,22 +85,30 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
         return $this->status === UserStatus::Suspended;
     }
 
-    /** Valide le compte et prévient le membre par e-mail (une seule fois par validation). */
-    public function approve(): void
+    /** Réactive un compte suspendu (statut « validé »). */
+    public function reactivate(): void
     {
-        if ($this->isApproved()) {
-            return;
-        }
-
         $this->forceFill([
             'status' => UserStatus::Approved,
-            'approved_at' => now(),
+            'approved_at' => $this->approved_at ?? now(),
             'suspended_at' => null,
-            'vip_verification_method' => $this->vip_verification_method ?? 'manual',
-            'vip_verified_at' => $this->vip_verified_at ?? now(),
         ])->save();
+    }
 
-        $this->notify(new AccountApproved);
+    /** Supprime le compte, son profil, ses réalisations et leurs fichiers (photo, visuels). */
+    public function deleteWithMedia(): void
+    {
+        $profile = $this->profile;
+
+        $mediaPaths = $profile
+            ? $profile->projects()->pluck('image_path')->push($profile->photo_path)->filter()->all()
+            : [];
+
+        $this->delete();
+
+        foreach ($mediaPaths as $path) {
+            Media::delete($path);
+        }
     }
 
     public function suspend(): void
