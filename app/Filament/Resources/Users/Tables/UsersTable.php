@@ -23,6 +23,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -154,6 +155,26 @@ class UsersTable
             ->action(function (User $record) {
                 $record->suspend();
                 Notification::make()->title('Compte suspendu.')->warning()->send();
+            });
+    }
+
+    /** Marquer l'adresse e-mail comme vérifiée, quand le membre n'a pas reçu ou pas cliqué le lien de vérification. */
+    public static function verifyEmailAction(): Action
+    {
+        return Action::make('verifyEmail')
+            ->label("Marquer l'e-mail comme vérifié")
+            ->icon('heroicon-o-envelope-open')
+            ->color('info')
+            ->requiresConfirmation()
+            ->modalHeading("Marquer l'e-mail comme vérifié ?")
+            ->modalDescription("À utiliser si vous avez confirmé l'adresse du membre par un autre moyen.")
+            ->visible(fn (User $record) => ! $record->hasVerifiedEmail())
+            ->action(function (User $record) {
+                if ($record->markEmailAsVerified()) {
+                    event(new Verified($record));
+                }
+
+                Notification::make()->title('E-mail marqué comme vérifié.')->success()->send();
             });
     }
 
