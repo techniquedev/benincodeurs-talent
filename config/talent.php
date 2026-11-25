@@ -16,4 +16,10 @@ return [
     // Pays par défaut des numéros WhatsApp.
     'phone_country' => 'BJ',
 
+    // Complétion minimale (en %) pour qu'un profil validé apparaisse dans l'annuaire.
+    'directory_min_completion' => 70,
+
+    // Nombre de profils par page dans l'annuaire.
+    'directory_per_page' => 12,
+
 ];

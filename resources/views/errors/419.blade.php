@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 419, 'title' => 'Page expirée', 'message' => 'Ta session a expiré. Recharge la page et recommence.', 'links' => [['Recharger', url()->previous()], ['Accueil', '/']]])

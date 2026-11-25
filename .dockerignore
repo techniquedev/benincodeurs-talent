@@ -20,3 +20,9 @@ tests
 Dockerfile
 render.yaml
 *.log
+.claude
+.cursor
+.ai
+boost.json
+AGENTS.md
+CLAUDE.md

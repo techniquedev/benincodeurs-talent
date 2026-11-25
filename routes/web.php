@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ProfileController;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
+use App\Livewire\Directory\Index as Directory;
+use App\Livewire\Profile\EditProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AccountController::class, 'home'])->name('home');
@@ -31,9 +34,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/espace', [AccountController::class, 'dashboard'])->name('dashboard');
         Route::get('/compte/en-attente', [AccountController::class, 'pending'])->name('account.pending');
 
+        // Profil : un compte en attente peut déjà le remplir.
+        Route::get('/profil', EditProfile::class)->name('profile.edit');
+        Route::get('/profil/apercu', [ProfileController::class, 'preview'])->name('profile.preview');
+
         // Réservé aux comptes validés.
         Route::middleware('approved')->group(function () {
-            Route::get('/annuaire', [AccountController::class, 'directory'])->name('directory');
+            Route::get('/annuaire', Directory::class)->name('directory');
+            Route::get('/annuaire/{profile}', [ProfileController::class, 'show'])->whereNumber('profile')->name('directory.show');
         });
     });
 });

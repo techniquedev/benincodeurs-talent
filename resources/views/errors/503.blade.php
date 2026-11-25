@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 503, 'title' => 'Maintenance en cours', 'message' => 'Le Talent Board est en cours de mise à jour. Reviens dans quelques minutes.', 'links' => [['Réessayer', '/']]])

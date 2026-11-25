@@ -51,11 +51,18 @@ class CloudinaryAdapter implements FilesystemAdapter
         return $this->folder !== '' ? $this->folder.'/'.$id : $id;
     }
 
-    /** Utilisé par Storage::disk('cloudinary')->url($path). */
-    public function getUrl(string $path): string
+    /**
+     * Utilisé par Storage::disk('cloudinary')->url($path). La transformation facultative
+     * est au format URL Cloudinary (ex. « c_fill,w_400,h_400/f_auto,q_auto »).
+     */
+    public function getUrl(string $path, ?string $transformation = null): string
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $asset = $this->cloudinary->image($this->publicId($path));
+
+        if ($transformation !== null && $transformation !== '') {
+            $asset->addTransformation($transformation);
+        }
 
         if ($extension !== '') {
             $asset->extension($extension);
@@ -112,6 +119,8 @@ class CloudinaryAdapter implements FilesystemAdapter
                 'resource_type' => 'image',
                 'overwrite' => true,
                 'invalidate' => true,
+                // Les photos de téléphone sont souvent énormes : on garde 1600 px maximum.
+                'transformation' => [['width' => 1600, 'height' => 1600, 'crop' => 'limit']],
             ]);
         } catch (Throwable $e) {
             throw UnableToWriteFile::atLocation($path, $e->getMessage(), $e);

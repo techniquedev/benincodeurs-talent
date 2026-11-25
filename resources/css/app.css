@@ -4,6 +4,9 @@
 @source '../../storage/framework/views/*.php';
 @source '../views/**/*.blade.php';
 @source '../../app/Livewire/**/*.php';
+@source '../../app/Enums/**/*.php';
+
+[x-cloak] { display: none !important; }
 
 /* Charte Bénin Codeurs : violet foncé, vert-jaune #D4F01F, coins arrondis. */
 @theme {
@@ -45,5 +48,24 @@
     }
     .alert {
         @apply rounded-xl border border-lime/60 bg-lime/15 px-4 py-3 text-sm text-brand;
+    }
+    .field-select {
+        @apply block w-full appearance-none rounded-xl border border-line bg-white py-3 pr-10 pl-4 text-base text-gray-900 focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/15;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236d2399'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");
+        background-position: right 0.75rem center;
+        background-repeat: no-repeat;
+        background-size: 1.25rem;
+    }
+    .field-help {
+        @apply mt-1.5 text-xs text-gray-500;
+    }
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap;
+    }
+    .chip {
+        @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition;
+    }
+    .section-title {
+        @apply text-lg font-extrabold tracking-tight text-brand;
     }
 }

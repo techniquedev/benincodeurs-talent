@@ -14,6 +14,8 @@ class EditUser extends EditRecord
     {
         return [
             UsersTable::approveAction(),
+            UsersTable::featureAction(),
+            UsersTable::viewInDirectoryAction(),
             UsersTable::suspendAction(),
         ];
     }

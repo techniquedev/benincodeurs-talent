@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -46,6 +47,17 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
     protected function name(): Attribute
     {
         return Attribute::get(fn () => trim($this->first_name.' '.$this->last_name));
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    /** Profil du membre, créé vide à la première visite du formulaire. */
+    public function ensureProfile(): Profile
+    {
+        return $this->profile ?? tap($this->profile()->create(), fn (Profile $profile) => $this->setRelation('profile', $profile));
     }
 
     public function getFilamentName(): string

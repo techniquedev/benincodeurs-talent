@@ -42,7 +42,12 @@ class AccountController extends Controller
 
     public function dashboard(Request $request): View
     {
-        return view('account.dashboard', ['user' => $request->user()]);
+        $user = $request->user();
+
+        return view('account.dashboard', [
+            'user' => $user,
+            'profile' => $user->ensureProfile(),
+        ]);
     }
 
     public function pending(Request $request): View|RedirectResponse
@@ -52,12 +57,6 @@ class AccountController extends Controller
         return $user->isApproved() || $user->is_admin
             ? redirect()->route('dashboard')
             : view('account.pending', ['user' => $user]);
-    }
-
-    /** L'annuaire arrive à une étape suivante : page d'attente réservée aux comptes validés. */
-    public function directory(): View
-    {
-        return view('account.directory');
     }
 
     public function logout(Request $request): RedirectResponse

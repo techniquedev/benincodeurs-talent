@@ -2,16 +2,29 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\Availability;
+use App\Enums\ExperienceLevel;
+use App\Enums\Profession;
 use App\Enums\UserStatus;
+use App\Models\Profile;
 use App\Models\User;
+use App\Support\Media;
+use App\Support\MembersCsvExport;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
@@ -19,29 +32,96 @@ class UsersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('profile'))
             ->columns([
-                TextColumn::make('first_name')->label('Prénom')->searchable()->sortable(),
-                TextColumn::make('last_name')->label('Nom')->searchable()->sortable(),
-                TextColumn::make('email')->label('E-mail')->searchable()->copyable(),
-                TextColumn::make('whatsapp')->label('WhatsApp')->searchable()->toggleable(),
+                ImageColumn::make('photo')->label('')
+                    ->state(fn (User $record) => Media::url($record->profile?->photo_path, 80, 80))
+                    ->circular()
+                    ->defaultImageUrl(fn (User $record) => self::initialsAvatar($record)),
+                TextColumn::make('name')->label('Membre')
+                    ->state(fn (User $record) => $record->name)
+                    ->description(fn (User $record) => $record->profile?->headline)
+                    ->searchable(['first_name', 'last_name'])
+                    ->sortable(['last_name', 'first_name']),
+                TextColumn::make('email')->label('E-mail')->searchable()->copyable()->toggleable(),
+                TextColumn::make('whatsapp')->label('WhatsApp')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn (UserStatus $state) => $state->label())
                     ->color(fn (UserStatus $state) => $state->color())
                     ->sortable(),
+                TextColumn::make('profile.profession')->label('Métier')
+                    ->formatStateUsing(fn (?Profession $state) => $state?->label())
+                    ->placeholder('—')->toggleable(),
+                TextColumn::make('profile.level')->label('Niveau')
+                    ->formatStateUsing(fn (?ExperienceLevel $state) => $state?->label())
+                    ->placeholder('—')->toggleable(),
+                TextColumn::make('profile.availability')->label('Disponibilité')->badge()
+                    ->formatStateUsing(fn (?Availability $state) => $state?->label())
+                    ->color(fn (?Availability $state) => $state?->color() ?? 'gray')
+                    ->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('profile.city')->label('Ville')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('profile.completion')->label('Profil')
+                    ->state(fn (User $record) => $record->profile?->completion ?? 0)
+                    ->suffix(' %')
+                    ->badge()
+                    ->color(fn (int $state) => $state >= Profile::minCompletion() ? 'success' : ($state >= 40 ? 'warning' : 'gray')),
+                IconColumn::make('profile.is_featured')->label('À la une')
+                    ->state(fn (User $record) => (bool) $record->profile?->is_featured)
+                    ->boolean()
+                    ->trueIcon('heroicon-s-star')->trueColor('warning')
+                    ->falseIcon('heroicon-o-minus')->falseColor('gray'),
                 IconColumn::make('email_verified')->label('E-mail vérifié')->boolean()
-                    ->state(fn (User $record) => $record->email_verified_at !== null),
+                    ->state(fn (User $record) => $record->email_verified_at !== null)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_admin')->label('Admin')->boolean()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')->label('Inscrit le')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')->label('Statut')->options(UserStatus::options()),
+                SelectFilter::make('profession')->label('Métier')->options(Profession::options())
+                    ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null,
+                        fn (Builder $q, string $value) => $q->whereHas('profile', fn (Builder $p) => $p->where('profession', $value)))),
+                SelectFilter::make('level')->label('Niveau')->options(ExperienceLevel::options())
+                    ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null,
+                        fn (Builder $q, string $value) => $q->whereHas('profile', fn (Builder $p) => $p->where('level', $value)))),
+                SelectFilter::make('availability')->label('Disponibilité')->options(Availability::options())
+                    ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null,
+                        fn (Builder $q, string $value) => $q->whereHas('profile', fn (Builder $p) => $p->where('availability', $value)))),
+                Filter::make('listed')->label("Visibles dans l'annuaire")->toggle()
+                    ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->listed())),
+                Filter::make('featured')->label('À la une')->toggle()
+                    ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->where('is_featured', true))),
                 TernaryFilter::make('email_verified_at')->label('E-mail vérifié')->nullable(),
                 TernaryFilter::make('is_admin')->label('Administrateur'),
             ])
             ->recordActions([
                 self::approveAction(),
-                self::suspendAction(),
-                EditAction::make(),
+                ActionGroup::make([
+                    self::featureAction(),
+                    self::viewInDirectoryAction(),
+                    self::suspendAction(),
+                    EditAction::make()->label('Ouvrir la fiche'),
+                ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('approveSelected')
+                        ->label('Valider la sélection')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalDescription("Chaque membre en attente recevra un e-mail et aura accès à l'annuaire.")
+                        ->action(function (Collection $records) {
+                            $count = $records->reject(fn (User $u) => $u->is_admin || $u->isApproved())
+                                ->each(fn (User $u) => $u->approve())->count();
+                            Notification::make()->title("$count compte(s) validé(s).")->success()->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('exportSelected')
+                        ->label('Exporter la sélection (CSV)')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(fn (Collection $records) => MembersCsvExport::download(User::query()->whereKey($records->modelKeys()))),
+                ]),
             ]);
     }
 
@@ -75,5 +155,47 @@ class UsersTable
                 $record->suspend();
                 Notification::make()->title('Compte suspendu.')->warning()->send();
             });
+    }
+
+    /** Mettre en avant / retirer de la une : les profils à la une s'affichent en premier dans l'annuaire. */
+    public static function featureAction(): Action
+    {
+        return Action::make('feature')
+            ->label(fn (User $record) => $record->profile?->is_featured ? 'Retirer de la une' : 'Mettre en avant')
+            ->icon(fn (User $record) => $record->profile?->is_featured ? 'heroicon-o-star' : 'heroicon-s-star')
+            ->color('warning')
+            ->visible(fn (User $record) => ! $record->is_admin)
+            ->action(function (User $record) {
+                $profile = $record->ensureProfile();
+                $profile->setFeatured(! $profile->is_featured);
+
+                Notification::make()
+                    ->title($profile->is_featured ? 'Profil mis en avant.' : 'Profil retiré de la une.')
+                    ->body($profile->is_featured && ! $profile->isListed()
+                        ? "Il s'affichera en premier dès qu'il sera visible dans l'annuaire (compte validé, profil complet à ".Profile::minCompletion().' %).'
+                        : null)
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public static function viewInDirectoryAction(): Action
+    {
+        return Action::make('viewInDirectory')
+            ->label("Voir dans l'annuaire")
+            ->icon('heroicon-o-arrow-top-right-on-square')
+            ->color('gray')
+            ->url(fn (User $record) => $record->profile ? route('directory.show', $record->profile) : null, shouldOpenInNewTab: true)
+            ->visible(fn (User $record) => $record->profile !== null && $record->profile->completion > 0);
+    }
+
+    /** Avatar SVG aux initiales, généré localement (aucun service externe). */
+    public static function initialsAvatar(User $user): string
+    {
+        $initials = e(mb_strtoupper(mb_substr($user->first_name, 0, 1).mb_substr($user->last_name, 0, 1)));
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#280050"/>'
+            .'<text x="32" y="41" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="800" fill="#D4F01F" text-anchor="middle">'.$initials.'</text></svg>';
+
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
 }
