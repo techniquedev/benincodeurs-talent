@@ -6,7 +6,7 @@
     $photoUrl = $profile->photoUrl(600);
     $initials = mb_strtoupper(mb_substr($user->first_name, 0, 1).mb_substr($user->last_name, 0, 1));
 @endphp
-<article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-gray-300 hover:shadow-lg hover:shadow-gray-900/5 focus-within:ring-4 focus-within:ring-violet/15']) }}>
+<article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-muted/40 hover:shadow-lg hover:shadow-night/5 focus-within:ring-4 focus-within:ring-violet/15']) }}>
     <div class="relative aspect-[4/3] overflow-hidden bg-paper">
         @if ($photoUrl)
             <img src="{{ $photoUrl }}" alt="Photo de {{ $user->name }}" width="600" height="600" loading="lazy" decoding="async"
@@ -19,12 +19,12 @@
             <span class="badge absolute top-3 left-3 bg-ink text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
         @endif
         @if ($profile->availability)
-            <span class="badge absolute right-3 bottom-3 bg-white/95 text-ink shadow-sm ring-1 ring-black/5 backdrop-blur">
+            <span class="badge absolute right-3 bottom-3 bg-white/95 text-ink shadow-sm ring-1 ring-line backdrop-blur">
                 <span aria-hidden="true" @class([
                     'size-1.5 rounded-full',
                     'bg-lime ring-2 ring-lime/40' => $profile->availability === \App\Enums\Availability::OpenToMissions,
                     'bg-violet' => $profile->availability === \App\Enums\Availability::OpenToJob,
-                    'bg-gray-400' => $profile->availability === \App\Enums\Availability::Unavailable,
+                    'bg-muted/60' => $profile->availability === \App\Enums\Availability::Unavailable,
                 ])></span>
                 {{ $profile->availability->label() }}
             </span>
@@ -41,21 +41,21 @@
             @endif
         </div>
         @if ($profile->headline)
-            <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ $profile->headline }}</p>
+            <p class="mt-1 line-clamp-2 text-sm text-muted">{{ $profile->headline }}</p>
         @endif
 
         @if ($cardSkills->isNotEmpty())
             <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Compétences mises en avant">
                 @foreach ($cardSkills as $skill)
-                    <li class="rounded-md border border-line bg-paper px-2 py-0.5 text-xs font-medium text-gray-700">{{ $skill->name }}</li>
+                    <li class="rounded-md border border-line bg-paper px-2 py-0.5 text-xs font-medium text-ink">{{ $skill->name }}</li>
                 @endforeach
             </ul>
         @endif
 
-        <div class="mt-auto flex items-center justify-between gap-2 pt-4 text-sm text-gray-500">
+        <div class="mt-auto flex items-center justify-between gap-2 pt-4 text-sm text-muted">
             <span class="inline-flex min-w-0 items-center gap-1.5">
                 @if ($profile->city)
-                    @svg('heroicon-m-map-pin', 'size-4 shrink-0 text-gray-400', ['aria-hidden' => 'true'])
+                    @svg('heroicon-m-map-pin', 'size-4 shrink-0 text-muted', ['aria-hidden' => 'true'])
                     <span class="truncate">{{ $profile->city }}</span>
                 @endif
             </span>

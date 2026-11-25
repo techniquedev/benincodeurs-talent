@@ -8,15 +8,15 @@
         'x' => ['X', 'M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93 6.07-6.93Zm-1.29 19.5h2.04L6.48 3.24H4.3l13.31 17.41Z'],
     ];
     $activeSocialNetworks = collect($socialNetworks)->filter(fn ($network, $key) => filled(config("talent.social.$key")));
-    $columnTitle = 'text-xs font-semibold tracking-wider text-gray-900 uppercase';
-    $columnLink = 'text-sm text-gray-600 transition hover:text-violet';
+    $columnTitle = 'text-xs font-semibold tracking-wider text-white uppercase';
+    $columnLink = 'text-sm text-white/70 transition hover:text-lime';
 @endphp
-<footer {{ $attributes->merge(['class' => 'border-t border-line bg-white']) }}>
+<footer {{ $attributes->merge(['class' => 'bg-night text-white']) }}>
     <div class="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6 lg:pt-16">
         <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
             <div class="sm:col-span-2 lg:col-span-1">
-                <x-logo dark />
-                <p class="mt-4 max-w-xs text-sm text-gray-600">
+                <x-logo />
+                <p class="mt-4 max-w-xs text-sm text-white/70">
                     L'annuaire des talents de la communauté VIP Bénin Codeurs : se faire connaître, se trouver, travailler ensemble.
                 </p>
                 @if ($activeSocialNetworks->isNotEmpty())
@@ -24,7 +24,7 @@
                         @foreach ($activeSocialNetworks as $key => [$networkName, $iconPath])
                             <li>
                                 <a href="{{ config("talent.social.$key") }}" target="_blank" rel="noopener noreferrer"
-                                   class="grid size-9 place-items-center rounded-lg border border-line text-gray-500 transition hover:border-violet/40 hover:text-violet">
+                                   class="grid size-10 place-items-center rounded-lg border border-white/15 text-white/70 transition hover:border-lime/60 hover:text-lime">
                                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-4"><path d="{{ $iconPath }}"/></svg>
                                     <span class="sr-only">{{ $networkName }}</span>
                                 </a>
@@ -72,7 +72,7 @@
             </nav>
         </div>
 
-        <div class="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+        <div class="mt-12 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
             <p>© {{ now()->year }} Bénin Codeurs · Talent Board de la communauté VIP</p>
             <p>Photos : Wezon Media</p>
         </div>

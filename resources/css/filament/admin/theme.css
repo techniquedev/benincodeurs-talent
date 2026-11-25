@@ -4,8 +4,8 @@
 @source '../../../../resources/views/filament/**/*';
 
 /*
- * Thème admin Talent Board : neutre et sobre (fond blanc / gris très clair, bordures fines),
- * violet en couleur primaire (défini dans AdminPanelProvider), vert-jaune en petits accents.
+ * Thème admin Talent Board (charte : prompts/design-system.md) : fond gris lavande #F6F5FA, cartes blanches,
+ * bordures #E7E5EE, primaire violet action #6B21A8 (AdminPanelProvider), neutres gris, Inter.
  */
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -13,7 +13,7 @@
 
 @layer components {
     .fi-body {
-        @apply bg-gray-50 dark:bg-gray-950;
+        @apply bg-[#F6F5FA] text-[#1A1523] dark:bg-gray-950 dark:text-white;
         letter-spacing: -0.005em;
     }
 
@@ -24,10 +24,10 @@
         @apply bg-white shadow-none ring-0 dark:bg-gray-900;
     }
     .fi-sidebar {
-        @apply border-e border-gray-200 dark:border-white/10;
+        @apply border-e border-[#E7E5EE] dark:border-white/10;
     }
     .fi-topbar {
-        @apply border-b border-gray-200 dark:border-white/10;
+        @apply border-b border-[#E7E5EE] dark:border-white/10;
     }
     .fi-sidebar-item-btn {
         @apply rounded-lg;
@@ -51,7 +51,7 @@
     .fi-fo-repeater-item,
     .fi-in-entry-wrp,
     .fi-modal-window {
-        @apply shadow-none ring-gray-200 dark:ring-white/10;
+        @apply shadow-none ring-[#E7E5EE] dark:ring-white/10;
     }
     .fi-section,
     .fi-ta-ctn,
@@ -65,9 +65,9 @@
         @apply font-semibold tracking-tight;
     }
 
-    /* Petit accent vert-jaune : soulignement de l'onglet actif. */
+    /* Accent vert-jaune (jamais en texte sur fond clair) : soulignement de l'onglet actif. */
     .fi-tabs-item.fi-active {
-        box-shadow: inset 0 -2px 0 #d4f01f;
+        box-shadow: inset 0 -2px 0 #D4F01F;
     }
 
     /* Boutons : coins arrondis comme sur le site. */
@@ -77,9 +77,9 @@
 
     /* Page de connexion : fond neutre, carte bordée. */
     .fi-simple-layout {
-        @apply bg-gray-50 dark:bg-gray-950;
+        @apply bg-[#F6F5FA] dark:bg-gray-950;
     }
     .fi-simple-main {
-        @apply shadow-none ring-1 ring-gray-200 dark:ring-white/10;
+        @apply shadow-none ring-1 ring-[#E7E5EE] dark:ring-white/10;
     }
 }

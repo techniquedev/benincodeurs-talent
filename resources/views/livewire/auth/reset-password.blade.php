@@ -1,6 +1,6 @@
 <div class="card">
     <h1 class="text-2xl font-semibold tracking-tight text-ink">Nouveau mot de passe</h1>
-    <p class="mt-1 text-sm text-gray-600">Choisis ton nouveau mot de passe.</p>
+    <p class="mt-1 text-sm text-muted">Choisis ton nouveau mot de passe.</p>
 
     <form wire:submit="resetPassword" class="mt-6 space-y-4" novalidate>
         <div>
@@ -12,7 +12,7 @@
         <div>
             <label for="password" class="field-label">Nouveau mot de passe</label>
             <input wire:model="password" id="password" type="password" autocomplete="new-password" required class="field-input">
-            <p class="mt-1.5 text-xs text-gray-500">8 caractères minimum, avec au moins une lettre et un chiffre.</p>
+            <p class="mt-1.5 text-xs text-muted">8 caractères minimum, avec au moins une lettre et un chiffre.</p>
             @error('password') <p class="field-error">{{ $message }}</p> @enderror
         </div>
 

@@ -38,7 +38,7 @@ enum Availability: string
         return match ($this) {
             self::OpenToMissions => 'bg-lime text-ink',
             self::OpenToJob => 'bg-violet/10 text-violet',
-            self::Unavailable => 'bg-gray-100 text-gray-600',
+            self::Unavailable => 'bg-line text-muted',
         };
     }
 }

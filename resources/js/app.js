@@ -2,7 +2,7 @@
  * Petits comportements du site, sans bibliothèque :
  * - menu mobile (délégation d'événements, compatible avec wire:navigate) ;
  * - repli des images absentes (le fond du conteneur reste visible) ;
- * - défilement narratif de l'accueil (IntersectionObserver).
+ * - barre de navigation de l'accueil et défilement narratif (progression du défilement).
  */
 
 function setMenuOpen(menu, open) {
@@ -59,18 +59,39 @@ function checkImages() {
     });
 }
 
-/* Défilement narratif : le repère qui passe au milieu de l'écran active son étape et fait apparaître sa photo. */
+/* Barre de navigation de l'accueil : transparente sur le hero, pleine dès qu'on défile. */
+function initSiteHeader() {
+    const header = document.querySelector('[data-site-header][data-overlay]');
+    if (!header) {
+        return;
+    }
+
+    const update = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+}
+
+/*
+ * Défilement narratif (« Pensé pour la communauté ») : le bloc collant reste visible pendant toute la zone ;
+ * la progression du défilement dans la zone choisit le point actif (1er point actif d'emblée).
+ */
 function initStory() {
     const story = document.querySelector('[data-story]');
-    if (!story || !('IntersectionObserver' in window)) {
+    if (!story) {
         return;
     }
 
     const steps = [...story.querySelectorAll('[data-story-step]')];
     const photos = [...story.querySelectorAll('[data-story-photo]')];
-    const triggers = [...story.querySelectorAll('[data-story-trigger]')];
+    const sticky = story.firstElementChild;
+    let current = -1;
+    let ticking = false;
 
     const activate = (index) => {
+        if (index === current) {
+            return;
+        }
+        current = index;
         steps.forEach((step, i) => {
             step.classList.toggle('is-active', i === index);
             if (i === index) {
@@ -82,20 +103,30 @@ function initStory() {
         photos.forEach((photo, i) => photo.classList.toggle('is-active', i === index));
     };
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                activate(triggers.indexOf(entry.target));
-            }
-        });
-    }, { rootMargin: '-45% 0px -50% 0px' });
+    const update = () => {
+        ticking = false;
+        const rect = story.getBoundingClientRect();
+        const stickyTop = parseFloat(getComputedStyle(sticky).top) || 0;
+        const range = rect.height - sticky.offsetHeight;
+        const progress = range > 0 ? Math.min(1, Math.max(0, (stickyTop - rect.top) / range)) : 0;
+        activate(Math.min(steps.length - 1, Math.floor(progress * steps.length)));
+    };
 
-    triggers.forEach((trigger) => observer.observe(trigger));
-    activate(0);
+    const requestUpdate = () => {
+        if (!ticking) {
+            ticking = true;
+            window.requestAnimationFrame(update);
+        }
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    update();
 }
 
 function init() {
     checkImages();
+    initSiteHeader();
     initStory();
 }
 

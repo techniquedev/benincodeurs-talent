@@ -8,17 +8,17 @@
     @endphp
     <nav role="navigation" aria-label="Pagination" class="flex items-center justify-between gap-3">
         @if ($paginator->onFirstPage())
-            <span class="{{ $button }} bg-white text-gray-300 ring-1 ring-line" aria-disabled="true">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) <span class="ml-1 hidden sm:inline">Précédent</span></span>
+            <span class="{{ $button }} bg-white text-muted/50 ring-1 ring-line" aria-disabled="true">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) <span class="ml-1 hidden sm:inline">Précédent</span></span>
         @else
-            <button type="button" x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })" wire:click="previousPage('{{ $paginator->getPageName() }}')" class="{{ $button }} bg-white text-ink ring-1 ring-line hover:bg-gray-50" rel="prev">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) <span class="ml-1 hidden sm:inline">Précédent</span></button>
+            <button type="button" x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })" wire:click="previousPage('{{ $paginator->getPageName() }}')" class="{{ $button }} bg-white text-ink ring-1 ring-line hover:bg-paper" rel="prev">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) <span class="ml-1 hidden sm:inline">Précédent</span></button>
         @endif
 
-        <p class="text-sm text-gray-600 sm:hidden">Page {{ $current }} sur {{ $last }}</p>
+        <p class="text-sm text-muted sm:hidden">Page {{ $current }} sur {{ $last }}</p>
 
         <ul class="hidden items-center gap-1 sm:flex">
             @foreach ($pages as $index => $page)
                 @if ($index > 0 && $page - $pages[$index - 1] > 1)
-                    <li class="px-1 text-gray-400" aria-hidden="true">…</li>
+                    <li class="px-1 text-muted" aria-hidden="true">…</li>
                 @endif
                 <li>
                     @if ($page === $current)
@@ -31,9 +31,9 @@
         </ul>
 
         @if ($paginator->hasMorePages())
-            <button type="button" x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })" wire:click="nextPage('{{ $paginator->getPageName() }}')" class="{{ $button }} bg-white text-ink ring-1 ring-line hover:bg-gray-50" rel="next"><span class="mr-1 hidden sm:inline">Suivant</span> @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</button>
+            <button type="button" x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })" wire:click="nextPage('{{ $paginator->getPageName() }}')" class="{{ $button }} bg-white text-ink ring-1 ring-line hover:bg-paper" rel="next"><span class="mr-1 hidden sm:inline">Suivant</span> @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</button>
         @else
-            <span class="{{ $button }} bg-white text-gray-300 ring-1 ring-line" aria-disabled="true"><span class="mr-1 hidden sm:inline">Suivant</span> @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
+            <span class="{{ $button }} bg-white text-muted/50 ring-1 ring-line" aria-disabled="true"><span class="mr-1 hidden sm:inline">Suivant</span> @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
         @endif
     </nav>
 @endif

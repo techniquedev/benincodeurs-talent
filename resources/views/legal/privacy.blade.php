@@ -1,8 +1,8 @@
 <x-layouts::public title="Confidentialité">
-    <article class="mx-auto max-w-2xl px-4 py-14 sm:px-6 sm:py-20">
-        <p class="eyebrow">Talent Board</p>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Confidentialité</h1>
-        <div class="mt-8 space-y-6 text-gray-700 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink">
+    <x-page-header eyebrow="Talent Board" title="Confidentialité" />
+
+    <article class="page-container">
+        <div class="card mx-auto max-w-3xl space-y-6 text-ink [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink">
             <section>
                 <h2>Ce que nous collectons</h2>
                 <p class="mt-2">Les informations de ton compte (prénom, nom, e-mail, numéro WhatsApp) et celles que tu ajoutes à ton profil : photo, ville, métier, niveau, compétences, situation, réalisations et liens.</p>

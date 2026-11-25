@@ -10,20 +10,67 @@
     $links = $profile->links();
 @endphp
 <x-layouts::app :title="$isOwner ? 'Mon profil' : $user->name">
-    @if ($canBrowse && ! request()->routeIs('profile.preview'))
-        <a href="{{ str_starts_with(url()->previous(), route('directory')) && url()->previous() !== url()->current() ? url()->previous() : route('directory') }}" class="link inline-flex items-center gap-1 text-sm">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Retour à l'annuaire</a>
-    @endif
+    {{-- En-tête du profil : bande violet profond, identité en blanc. --}}
+    <x-page-header>
+        @if ($canBrowse && ! request()->routeIs('profile.preview'))
+            <a href="{{ str_starts_with(url()->previous(), route('directory')) && url()->previous() !== url()->current() ? url()->previous() : route('directory') }}" class="-ml-2 inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-semibold text-white/80 transition hover:text-white">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Retour à l'annuaire</a>
+        @endif
 
+        <div @class(['flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6', 'mt-4' => $canBrowse && ! request()->routeIs('profile.preview')])>
+            <x-avatar :profile="$profile" :user="$user" size="size-24 sm:size-32" text="text-3xl sm:text-4xl" :pixels="320" class="ring-4 ring-white/15" />
+            <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap gap-1.5">
+                    @if ($profile->is_featured)
+                        <span class="badge bg-night text-lime ring-1 ring-lime/40">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
+                    @endif
+                    @if ($profile->availability)
+                        <span @class(['badge', $profile->availability->badgeClasses() => $profile->availability === \App\Enums\Availability::OpenToMissions, 'bg-white/10 text-white ring-1 ring-white/20' => $profile->availability !== \App\Enums\Availability::OpenToMissions])>{{ $profile->availability->label() }}</span>
+                    @endif
+                </div>
+                <h1 @class(['text-2xl font-semibold tracking-tight text-white sm:text-3xl', 'mt-2' => $profile->is_featured || $profile->availability])>{{ $user->name }}</h1>
+                @if ($profile->headline)
+                    <p class="mt-1 text-base text-white/80 sm:text-lg">{{ $profile->headline }}</p>
+                @endif
+
+                <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/75">
+                    @if ($profile->profession)
+                        <div><dt class="sr-only">Métier</dt><dd class="font-semibold text-white">{{ $profile->profession->label() }}</dd></div>
+                    @endif
+                    @if ($profile->level)
+                        <div><dt class="sr-only">Niveau</dt><dd><span class="badge bg-white/10 text-white ring-1 ring-white/20">{{ $profile->level->label() }}</span></dd></div>
+                    @endif
+                    @if ($profile->years_experience !== null)
+                        <div><dt class="sr-only">Expérience</dt><dd>{{ $profile->years_experience === 0 ? "Moins d'un an d'expérience" : $profile->years_experience.' '.($profile->years_experience > 1 ? 'ans' : 'an')." d'expérience" }}</dd></div>
+                    @endif
+                    @if ($profile->city)
+                        <div><dt class="sr-only">Ville</dt><dd class="inline-flex items-center gap-1">@svg('heroicon-m-map-pin', 'size-4 text-lime', ['aria-hidden' => 'true']) {{ $profile->city }}</dd></div>
+                    @endif
+                    @if ($profile->work_status)
+                        <div>
+                            <dt class="sr-only">Situation</dt>
+                            <dd>
+                                {{ $profile->work_status->label() }}@if ($showCompany) · {{ $profile->company }}@endif
+                                @if ($showCompany && ! $profile->company_visible) <span class="text-xs text-white/70">(entreprise masquée)</span> @endif
+                            </dd>
+                        </div>
+                    @elseif ($showCompany)
+                        <div><dt class="sr-only">Entreprise</dt><dd>{{ $profile->company }} @if (! $profile->company_visible) <span class="text-xs text-white/70">(masquée)</span> @endif</dd></div>
+                    @endif
+                </dl>
+            </div>
+        </div>
+    </x-page-header>
+
+    <div class="page-container">
     @if ($isOwner)
         <div @class([
-            'rounded-card border p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5',
+            'mb-6 rounded-card border p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5',
             'border-line border-l-4 border-l-lime bg-white' => $profile->isListed(),
             'border-line border-l-4 border-l-violet bg-white' => ! $profile->isListed(),
-            'mt-4' => $canBrowse && ! request()->routeIs('profile.preview'),
         ])>
             <div>
                 <p class="font-semibold text-ink">Aperçu : voici ce que voient les autres membres.</p>
-                <p class="mt-0.5 text-sm text-gray-700">
+                <p class="mt-0.5 text-sm text-ink">
                     @if ($profile->isListed())
                         Ton profil est visible dans l'annuaire.
                     @elseif ($profile->completion < Profile::minCompletion())
@@ -38,68 +85,19 @@
         </div>
     @endif
 
-    {{-- En-tête du profil --}}
-    <section class="mt-4 overflow-hidden rounded-card border border-line bg-white">
-        <div class="h-24 bg-linear-to-r from-violet/15 via-paper to-lime/30 sm:h-32"></div>
-        <div class="px-5 pb-6 sm:px-8">
-            <div class="-mt-12 flex flex-col gap-4 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between">
-                <x-avatar :profile="$profile" :user="$user" size="size-24 sm:size-32" text="text-3xl sm:text-4xl" :pixels="320" class="ring-4 ring-white" />
-                <div class="flex flex-wrap gap-1.5 sm:justify-end">
-                    @if ($profile->is_featured)
-                        <span class="badge bg-ink text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
-                    @endif
-                    @if ($profile->availability)
-                        <span class="badge {{ $profile->availability->badgeClasses() }}">{{ $profile->availability->label() }}</span>
-                    @endif
-                </div>
-            </div>
-
-            <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{{ $user->name }}</h1>
-            @if ($profile->headline)
-                <p class="mt-1 text-base text-gray-700 sm:text-lg">{{ $profile->headline }}</p>
-            @endif
-
-            <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-                @if ($profile->profession)
-                    <div><dt class="sr-only">Métier</dt><dd class="font-semibold text-ink">{{ $profile->profession->label() }}</dd></div>
-                @endif
-                @if ($profile->level)
-                    <div><dt class="sr-only">Niveau</dt><dd><span class="badge bg-violet/10 text-violet">{{ $profile->level->label() }}</span></dd></div>
-                @endif
-                @if ($profile->years_experience !== null)
-                    <div><dt class="sr-only">Expérience</dt><dd>{{ $profile->years_experience === 0 ? "Moins d'un an d'expérience" : $profile->years_experience.' '.($profile->years_experience > 1 ? 'ans' : 'an')." d'expérience" }}</dd></div>
-                @endif
-                @if ($profile->city)
-                    <div><dt class="sr-only">Ville</dt><dd class="inline-flex items-center gap-1">@svg('heroicon-m-map-pin', 'size-4 text-violet', ['aria-hidden' => 'true']) {{ $profile->city }}</dd></div>
-                @endif
-                @if ($profile->work_status)
-                    <div>
-                        <dt class="sr-only">Situation</dt>
-                        <dd>
-                            {{ $profile->work_status->label() }}@if ($showCompany) · {{ $profile->company }}@endif
-                            @if ($showCompany && ! $profile->company_visible) <span class="text-xs text-gray-400">(entreprise masquée)</span> @endif
-                        </dd>
-                    </div>
-                @elseif ($showCompany)
-                    <div><dt class="sr-only">Entreprise</dt><dd>{{ $profile->company }} @if (! $profile->company_visible) <span class="text-xs text-gray-400">(masquée)</span> @endif</dd></div>
-                @endif
-            </dl>
-        </div>
-    </section>
-
-    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
+    <div class="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
         <div class="space-y-6">
             @if ($profile->bio)
                 <section class="card">
                     <h2 class="section-title">Présentation</h2>
-                    <p class="mt-3 whitespace-pre-line text-gray-700">{{ $profile->bio }}</p>
+                    <p class="mt-3 whitespace-pre-line text-ink">{{ $profile->bio }}</p>
                 </section>
             @endif
 
             @if ($profile->level)
                 <section class="card">
                     <h2 class="section-title">Niveau : {{ $profile->level->label() }}</h2>
-                    <p class="mt-2 text-sm text-gray-600">{{ $profile->level->description() }}</p>
+                    <p class="mt-2 text-sm text-muted">{{ $profile->level->description() }}</p>
                 </section>
             @endif
 
@@ -109,7 +107,7 @@
                     <div class="mt-4 space-y-5">
                         @foreach ($skillsByCategory as $categoryName => $categorySkills)
                             <div>
-                                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ $categoryName }}</h3>
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ $categoryName }}</h3>
                                 <ul class="mt-2 grid gap-2 sm:grid-cols-2">
                                     @foreach ($categorySkills as $skill)
                                         @php $skillLevel = SkillLevel::tryFrom($skill->pivot->level); @endphp
@@ -123,7 +121,7 @@
                                                 {{ $skill->name }}
                                             </span>
                                             @if ($skillLevel)
-                                                <span class="flex shrink-0 items-center gap-2 text-xs text-gray-600">
+                                                <span class="flex shrink-0 items-center gap-2 text-xs text-muted">
                                                     {{ $skillLevel->label() }}
                                                     <x-level-dots :level="$skillLevel" />
                                                 </span>
@@ -151,7 +149,7 @@
                                 <div class="flex flex-1 flex-col p-4">
                                     <h3 class="font-semibold text-ink">{{ $project->title }}</h3>
                                     @if ($project->description)
-                                        <p class="mt-1 whitespace-pre-line text-sm text-gray-600">{{ $project->description }}</p>
+                                        <p class="mt-1 whitespace-pre-line text-sm text-muted">{{ $project->description }}</p>
                                     @endif
                                     @if ($project->url)
                                         <a href="{{ $project->url }}" target="_blank" rel="noopener noreferrer nofollow" class="link mt-auto inline-flex items-center gap-1 pt-3 text-sm">Voir le projet @svg('heroicon-m-arrow-up-right', 'size-4', ['aria-hidden' => 'true'])</a>
@@ -164,7 +162,7 @@
             @endif
 
             @if (! $profile->bio && $profile->skills->isEmpty() && $profile->projects->isEmpty())
-                <section class="card text-center text-sm text-gray-600">
+                <section class="card text-center text-sm text-muted">
                     @if ($isOwner)
                         Ton profil est encore vide. <a href="{{ route('profile.edit') }}" class="link">Complète-le</a> pour apparaître dans l'annuaire.
                     @else
@@ -174,7 +172,7 @@
             @endif
         </div>
 
-        <aside class="space-y-6 lg:sticky lg:top-6">
+        <aside class="space-y-6 lg:sticky lg:top-24">
             <section class="card">
                 <h2 class="section-title">Contact</h2>
                 @if ($showWhatsapp || $showEmail)
@@ -185,18 +183,18 @@
                                 Écrire sur WhatsApp
                             </a>
                             @if ($isOwner && ! $profile->whatsapp_visible)
-                                <p class="text-xs text-gray-500">WhatsApp masqué pour les autres membres.</p>
+                                <p class="text-xs text-muted">WhatsApp masqué pour les autres membres.</p>
                             @endif
                         @endif
                         @if ($showEmail)
                             <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) {{ $user->email }}</a>
                             @if ($isOwner && ! $profile->email_visible)
-                                <p class="text-xs text-gray-500">E-mail masqué pour les autres membres.</p>
+                                <p class="text-xs text-muted">E-mail masqué pour les autres membres.</p>
                             @endif
                         @endif
                     </div>
                 @else
-                    <p class="mt-3 text-sm text-gray-600">Ce membre n'affiche pas ses coordonnées.@if ($links !== []) Tu peux le joindre par ses liens ci-dessous.@endif</p>
+                    <p class="mt-3 text-sm text-muted">Ce membre n'affiche pas ses coordonnées.@if ($links !== []) Tu peux le joindre par ses liens ci-dessous.@endif</p>
                 @endif
             </section>
 
@@ -206,7 +204,7 @@
                     <ul class="mt-3 space-y-2">
                         @foreach ($links as $label => $url)
                             <li>
-                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center justify-between gap-3 rounded-lg border border-line px-4 py-3 font-medium text-ink hover:border-gray-300 hover:bg-gray-50">
+                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center justify-between gap-3 rounded-lg border border-line px-4 py-3 font-medium text-ink hover:border-muted/40 hover:bg-paper">
                                     {{ $label }} @svg('heroicon-m-arrow-up-right', 'size-4 text-violet', ['aria-hidden' => 'true'])
                                 </a>
                             </li>
@@ -215,5 +213,6 @@
                 </section>
             @endif
         </aside>
+    </div>
     </div>
 </x-layouts::app>

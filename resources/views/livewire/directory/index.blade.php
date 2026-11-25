@@ -8,35 +8,32 @@
 
 <div x-data="{ filtersOpen: false }" x-effect="document.documentElement.classList.toggle('overflow-hidden', filtersOpen)"
      x-on:keydown.escape.window="filtersOpen = false" x-on:livewire:navigating.window="filtersOpen = false">
-    <div class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Annuaire des talents</h1>
-        <p class="max-w-2xl text-sm text-gray-600 sm:text-base">Trouve un membre de la communauté VIP Bénin Codeurs par métier, compétence, niveau ou ville.</p>
-    </div>
-
+    <x-page-header title="Annuaire des talents" description="Trouve un membre de la communauté VIP Bénin Codeurs par métier, compétence, niveau ou ville.">
     <div class="mt-6 flex gap-2">
         <div class="relative flex-1">
             <label for="directory-search" class="sr-only">Rechercher</label>
-            @svg('heroicon-m-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-gray-400', ['aria-hidden' => 'true'])
+            @svg('heroicon-m-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-muted', ['aria-hidden' => 'true'])
             <input wire:model.live.debounce.400ms="search" id="directory-search" type="search" autocomplete="off"
-                   class="field-input py-3 pl-11" placeholder="Nom, compétence, titre, ville…">
+                   class="field-input border-white py-3 pl-11" placeholder="Nom, compétence, titre, ville…">
         </div>
         <button type="button" x-on:click="filtersOpen = true" aria-controls="directory-filters" x-bind:aria-expanded="filtersOpen.toString()"
-                class="btn-secondary shrink-0 lg:hidden">
+                class="btn-secondary shrink-0 border-white lg:hidden">
             @svg('heroicon-m-adjustments-horizontal', 'size-5', ['aria-hidden' => 'true'])
             <span class="hidden sm:inline">Filtres</span>
             @if ($filterCount > 0) <span class="badge bg-lime px-1.5 py-0 text-ink">{{ $filterCount }}</span> @endif
         </button>
     </div>
+    </x-page-header>
 
-    <div class="mt-6 lg:grid lg:grid-cols-[15rem_1fr] lg:items-start lg:gap-10">
+    <div class="page-container lg:grid lg:grid-cols-[15rem_1fr] lg:items-start lg:gap-10">
         {{-- Filtres : colonne sur ordinateur, panneau coulissant sur mobile et tablette. --}}
-        <div x-show="filtersOpen" x-transition.opacity x-cloak x-on:click="filtersOpen = false" class="fixed inset-0 z-40 bg-gray-900/30 lg:hidden" aria-hidden="true"></div>
+        <div x-show="filtersOpen" x-transition.opacity x-cloak x-on:click="filtersOpen = false" class="fixed inset-0 z-40 bg-night/60 lg:hidden" aria-hidden="true"></div>
         <aside id="directory-filters" aria-label="Filtres"
                class="flex flex-col max-lg:invisible max-lg:fixed max-lg:inset-y-0 max-lg:right-0 max-lg:z-50 max-lg:w-[88%] max-lg:max-w-sm max-lg:translate-x-full max-lg:bg-white max-lg:shadow-2xl max-lg:transition-[translate,visibility] max-lg:duration-300 max-lg:motion-reduce:transition-none lg:sticky lg:top-24"
                x-bind:class="{ 'max-lg:invisible': ! filtersOpen, 'max-lg:translate-x-full': ! filtersOpen }">
             <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-5 lg:hidden">
                 <p class="font-semibold text-ink">Filtres</p>
-                <button type="button" x-on:click="filtersOpen = false" class="-mr-2 grid size-10 place-items-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-ink">
+                <button type="button" x-on:click="filtersOpen = false" class="-mr-2 grid size-10 place-items-center rounded-lg text-muted hover:bg-line hover:text-ink">
                     @svg('heroicon-o-x-mark', 'size-6', ['aria-hidden' => 'true'])
                     <span class="sr-only">Fermer les filtres</span>
                 </button>
@@ -44,7 +41,7 @@
 
             <div class="flex-1 space-y-5 overflow-y-auto p-5 lg:overflow-visible lg:p-0">
                 <div class="hidden items-center justify-between lg:flex">
-                    <p class="text-xs font-semibold tracking-wider text-gray-500 uppercase">Filtres</p>
+                    <p class="text-xs font-semibold tracking-wider text-muted uppercase">Filtres</p>
                     @if ($filterCount > 0)
                         <button type="button" wire:click="resetFilters" class="text-xs font-medium text-violet hover:underline">Effacer</button>
                     @endif
@@ -112,7 +109,7 @@
 
         <div class="min-w-0">
             <div class="flex items-center justify-between gap-3" id="resultats">
-                <p class="text-sm text-gray-600" aria-live="polite">
+                <p class="text-sm text-muted" aria-live="polite">
                     <strong class="text-ink">{{ $profiles->total() }}</strong> {{ $profiles->total() > 1 ? 'membres' : 'membre' }}
                 </p>
                 <div class="flex items-center gap-3">
@@ -127,7 +124,7 @@
                 <div class="card mt-4 text-center">
                     <div class="mx-auto grid size-14 place-items-center rounded-full bg-paper text-violet" aria-hidden="true">@svg('heroicon-o-magnifying-glass', 'size-7', ['aria-hidden' => 'true'])</div>
                     <h2 class="mt-3 text-lg font-semibold text-ink">Aucun membre ne correspond</h2>
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-sm text-muted">
                         @if ($filterCount > 0 || $search !== '')
                             Essaie avec moins de filtres ou un autre mot-clé.
                         @else

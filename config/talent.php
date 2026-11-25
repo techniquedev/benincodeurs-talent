@@ -42,7 +42,4 @@ return [
         'x' => env('TALENT_SOCIAL_X'),
     ],
 
-    // Chiffres de l'accueil : durée du cache, en secondes.
-    'home_stats_ttl' => 600,
-
 ];

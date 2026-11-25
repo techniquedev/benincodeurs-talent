@@ -9,21 +9,20 @@
 [x-cloak] { display: none !important; }
 
 /*
- * Charte Bénin Codeurs, version sobre : fond blanc et gris très clair, bordures fines,
- * violet pour les actions principales, vert-jaune #D4F01F en petits accents.
+ * Charte Bénin Codeurs (voir prompts/design-system.md) : alternance de fonds violets sombres
+ * et de fonds lavande clairs, violet pour les actions sur fond clair, vert-jaune en accent.
  */
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-    --color-night: #1a0035;      /* violet très sombre (CTA, superpositions) */
-    --color-brand: #280050;      /* violet Bénin Codeurs */
-    --color-violet: #6d2399;     /* violet d'action */
-    --color-violet-hover: #5a1c80;
-    --color-lime: #D4F01F;       /* vert-jaune, accents */
-    --color-lime-hover: #c2dd10;
-    --color-ink: #111111;        /* texte principal et texte sur vert-jaune */
-    --color-paper: #fafafa;      /* fond gris très clair */
-    --color-line: #e8e8ec;       /* bordures fines */
+    --color-night: #1A0035;      /* violet nuit : fonds sombres, navigation, footer */
+    --color-brand: #280050;      /* violet profond : sections sombres, en-têtes */
+    --color-violet: #6B21A8;     /* violet action : boutons et liens sur fond clair */
+    --color-lime: #D4F01F;       /* vert-jaune : accent (jamais en aplat, jamais en texte sur fond clair) */
+    --color-paper: #F6F5FA;      /* gris lavande : fonds clairs */
+    --color-line: #E7E5EE;       /* bordures */
+    --color-ink: #1A1523;        /* texte principal */
+    --color-muted: #6B6578;      /* texte secondaire */
 
     --radius-card: 0.875rem;
 }
@@ -33,29 +32,38 @@
         -webkit-tap-highlight-color: transparent;
     }
     ::selection {
-        background: color-mix(in oklab, var(--color-lime) 70%, transparent);
+        background: color-mix(in oklab, var(--color-violet) 25%, transparent);
         color: var(--color-ink);
     }
 }
 
 @layer components {
+    /* Fond clair : principal violet, secondaire contour gris. */
     .btn-primary {
-        @apply inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet px-5 py-2.5 font-semibold text-white shadow-sm shadow-violet/20 transition hover:bg-violet-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-violet/25 disabled:opacity-60 sm:w-auto;
+        @apply inline-flex w-full items-center justify-center gap-2 rounded-lg bg-violet px-5 py-2.5 font-semibold text-white shadow-sm shadow-violet/20 transition hover:bg-brand focus:outline-none focus-visible:ring-4 focus-visible:ring-violet/25 disabled:opacity-60 sm:w-auto;
     }
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 font-semibold text-gray-900 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-violet/15;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-muted/40 bg-white px-4 py-2.5 font-semibold text-ink transition hover:border-muted/70 hover:bg-paper focus:outline-none focus-visible:ring-4 focus-visible:ring-violet/15 disabled:opacity-60;
+    }
+    /* Fond sombre : principal vert-jaune, secondaire contour blanc. */
+    .btn-lime {
+        @apply inline-flex w-full items-center justify-center gap-2 rounded-lg bg-lime px-5 py-2.5 font-semibold text-night transition hover:bg-white focus:outline-none focus-visible:ring-4 focus-visible:ring-lime/40 sm:w-auto;
     }
     .btn-ghost-light {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 px-5 py-2.5 font-semibold text-white transition hover:bg-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/20;
+        @apply inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/70 px-5 py-2.5 font-semibold text-white transition hover:border-white hover:bg-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/20 sm:w-auto;
     }
     .card {
         @apply rounded-card border border-line bg-white p-5 sm:p-8;
     }
+    /* Conteneur du contenu des pages de l'espace membre (sous l'en-tête violet). */
+    .page-container {
+        @apply mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10;
+    }
     .field-label {
-        @apply mb-1.5 block text-sm font-medium text-gray-900;
+        @apply mb-1.5 block text-sm font-medium text-ink;
     }
     .field-input {
-        @apply block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-base text-gray-900 shadow-xs placeholder:text-gray-400 focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/10 sm:text-sm;
+        @apply block w-full rounded-lg border border-muted/40 bg-white px-3.5 py-2.5 text-base text-ink shadow-xs placeholder:text-muted/70 focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/10 sm:text-sm;
     }
     .field-error {
         @apply mt-1.5 text-sm text-red-700;
@@ -64,17 +72,17 @@
         @apply font-semibold text-violet underline-offset-4 hover:underline;
     }
     .alert {
-        @apply rounded-lg border border-line border-l-4 border-l-lime bg-white px-4 py-3 text-sm text-gray-800;
+        @apply rounded-lg border border-line border-l-4 border-l-violet bg-white px-4 py-3 text-sm text-ink;
     }
     .field-select {
-        @apply block w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pr-10 pl-3.5 text-base text-gray-900 shadow-xs focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/10 sm:text-sm;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");
+        @apply block w-full appearance-none rounded-lg border border-muted/40 bg-white py-2.5 pr-10 pl-3.5 text-base text-ink shadow-xs focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/10 sm:text-sm;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B6578'%3E%3Cpath d='M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4z'/%3E%3C/svg%3E");
         background-position: right 0.75rem center;
         background-repeat: no-repeat;
         background-size: 1.125rem;
     }
     .field-help {
-        @apply mt-1.5 text-xs text-gray-500;
+        @apply mt-1.5 text-xs text-muted;
     }
     .badge {
         @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap;
@@ -83,16 +91,42 @@
         @apply inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition;
     }
     .section-title {
-        @apply text-base font-semibold tracking-tight text-gray-900;
+        @apply text-base font-semibold tracking-tight text-ink;
     }
     .eyebrow {
         @apply inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-violet uppercase;
     }
+    .eyebrow-dark {
+        @apply inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-lime uppercase;
+    }
 
     /* Image décorative : fond de repli visible si le fichier est absent ou en cours de chargement. */
     .media-fallback {
-        @apply bg-linear-to-br from-violet/25 via-paper to-lime/25;
+        @apply bg-linear-to-br from-violet/30 via-brand/20 to-paper;
     }
+
+    /* Lueur violette discrète des fonds sombres. */
+    .glow {
+        background-image:
+            radial-gradient(ellipse 60% 50% at 80% 0%, color-mix(in oklab, var(--color-violet) 45%, transparent), transparent 70%),
+            radial-gradient(ellipse 50% 40% at 0% 100%, color-mix(in oklab, var(--color-violet) 25%, transparent), transparent 70%);
+    }
+}
+
+/*
+ * Barre de navigation publique : pleine (violet nuit) par défaut.
+ * Au-dessus du hero de l'accueil (data-overlay), transparente tant qu'on n'a pas défilé ;
+ * sans JavaScript, elle reste pleine.
+ */
+.site-header {
+    background-color: var(--color-night);
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+.site-header.is-scrolled {
+    box-shadow: 0 1px 0 color-mix(in oklab, white 10%, transparent);
+}
+.js .site-header[data-overlay]:not(.is-scrolled) {
+    background-color: transparent;
 }
 
 /* Accueil, « Pensé pour la communauté » : photos superposées qui changent en fondu. */
@@ -109,13 +143,14 @@
     transition: opacity 0.4s ease, border-color 0.4s ease;
 }
 .story-step.is-active {
-    border-color: var(--color-violet);
+    border-color: var(--color-lime);
 }
 .js .story-step:not(.is-active) {
-    opacity: 0.4;
+    opacity: 0.5;
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .site-header,
     .story-photo,
     .story-step {
         transition: none;

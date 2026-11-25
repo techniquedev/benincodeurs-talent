@@ -1,6 +1,6 @@
 <div class="card">
     <h1 class="text-2xl font-semibold tracking-tight text-ink">Connexion</h1>
-    <p class="mt-1 text-sm text-gray-600">Accède à ton espace membre du Talent Board.</p>
+    <p class="mt-1 text-sm text-muted">Accède à ton espace membre du Talent Board.</p>
 
     @if (session('status'))
         <div class="alert mt-5" role="status">{{ session('status') }}</div>
@@ -22,7 +22,7 @@
             @error('password') <p class="field-error">{{ $message }}</p> @enderror
         </div>
 
-        <label class="flex items-center gap-2 text-sm text-gray-700">
+        <label class="flex items-center gap-2 text-sm text-ink">
             <input wire:model="remember" type="checkbox" class="size-4 rounded border-line accent-violet">
             Rester connecté
         </label>
@@ -33,7 +33,7 @@
         </button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-gray-600">
+    <p class="mt-6 text-center text-sm text-muted">
         Pas encore de compte ? <a href="{{ route('register') }}" class="link" wire:navigate>Inscris-toi</a>
     </p>
 </div>

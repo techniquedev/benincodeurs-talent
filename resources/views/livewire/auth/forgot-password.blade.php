@@ -1,6 +1,6 @@
 <div class="card">
     <h1 class="text-2xl font-semibold tracking-tight text-ink">Mot de passe oublié</h1>
-    <p class="mt-1 text-sm text-gray-600">Indique ton e-mail : tu recevras un lien pour choisir un nouveau mot de passe.</p>
+    <p class="mt-1 text-sm text-muted">Indique ton e-mail : tu recevras un lien pour choisir un nouveau mot de passe.</p>
 
     @if ($status)
         <div class="alert mt-5" role="status">{{ $status }}</div>
@@ -19,7 +19,7 @@
         </button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-gray-600">
+    <p class="mt-6 text-center text-sm text-muted">
         <a href="{{ route('login') }}" class="link" wire:navigate>Retour à la connexion</a>
     </p>
 </div>

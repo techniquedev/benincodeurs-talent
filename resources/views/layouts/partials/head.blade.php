@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#1A0035">
 <script>document.documentElement.classList.add('js');</script>
 <meta name="robots" content="noindex, nofollow">
 <title>{{ ! empty($title) ? $title.' · ' : '' }}Talent Board Bénin Codeurs</title>
