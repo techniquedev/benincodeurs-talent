@@ -17,12 +17,12 @@
     @if ($isOwner)
         <div @class([
             'rounded-card border p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5',
-            'border-lime/60 bg-lime/15' => $profile->isListed(),
-            'border-violet/20 bg-violet/5' => ! $profile->isListed(),
+            'border-line border-l-4 border-l-lime bg-white' => $profile->isListed(),
+            'border-line border-l-4 border-l-violet bg-white' => ! $profile->isListed(),
             'mt-4' => $canBrowse && ! request()->routeIs('profile.preview'),
         ])>
             <div>
-                <p class="font-bold text-brand">Aperçu : voici ce que voient les autres membres.</p>
+                <p class="font-semibold text-ink">Aperçu : voici ce que voient les autres membres.</p>
                 <p class="mt-0.5 text-sm text-gray-700">
                     @if ($profile->isListed())
                         Ton profil est visible dans l'annuaire.
@@ -39,14 +39,14 @@
     @endif
 
     {{-- En-tête du profil --}}
-    <section class="mt-4 overflow-hidden rounded-card bg-white shadow-xl shadow-night/5 ring-1 ring-line">
-        <div class="h-24 bg-linear-to-r from-brand via-violet to-brand sm:h-32"></div>
+    <section class="mt-4 overflow-hidden rounded-card border border-line bg-white">
+        <div class="h-24 bg-linear-to-r from-violet/15 via-paper to-lime/30 sm:h-32"></div>
         <div class="px-5 pb-6 sm:px-8">
             <div class="-mt-12 flex flex-col gap-4 sm:-mt-16 sm:flex-row sm:items-end sm:justify-between">
                 <x-avatar :profile="$profile" :user="$user" size="size-24 sm:size-32" text="text-3xl sm:text-4xl" :pixels="320" class="ring-4 ring-white" />
                 <div class="flex flex-wrap gap-1.5 sm:justify-end">
                     @if ($profile->is_featured)
-                        <span class="badge bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
+                        <span class="badge bg-ink text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
                     @endif
                     @if ($profile->availability)
                         <span class="badge {{ $profile->availability->badgeClasses() }}">{{ $profile->availability->label() }}</span>
@@ -54,14 +54,14 @@
                 </div>
             </div>
 
-            <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">{{ $user->name }}</h1>
+            <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{{ $user->name }}</h1>
             @if ($profile->headline)
                 <p class="mt-1 text-base text-gray-700 sm:text-lg">{{ $profile->headline }}</p>
             @endif
 
             <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
                 @if ($profile->profession)
-                    <div><dt class="sr-only">Métier</dt><dd class="font-semibold text-brand">{{ $profile->profession->label() }}</dd></div>
+                    <div><dt class="sr-only">Métier</dt><dd class="font-semibold text-ink">{{ $profile->profession->label() }}</dd></div>
                 @endif
                 @if ($profile->level)
                     <div><dt class="sr-only">Niveau</dt><dd><span class="badge bg-violet/10 text-violet">{{ $profile->level->label() }}</span></dd></div>
@@ -109,16 +109,16 @@
                     <div class="mt-4 space-y-5">
                         @foreach ($skillsByCategory as $categoryName => $categorySkills)
                             <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500">{{ $categoryName }}</h3>
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ $categoryName }}</h3>
                                 <ul class="mt-2 grid gap-2 sm:grid-cols-2">
                                     @foreach ($categorySkills as $skill)
                                         @php $skillLevel = SkillLevel::tryFrom($skill->pivot->level); @endphp
                                         <li @class([
-                                            'flex items-center justify-between gap-3 rounded-xl px-3 py-2.5',
-                                            'bg-lime/20 ring-1 ring-lime' => $skill->pivot->is_highlighted,
-                                            'bg-paper' => ! $skill->pivot->is_highlighted,
+                                            'flex items-center justify-between gap-3 rounded-lg px-3 py-2.5',
+                                            'bg-lime/15 ring-1 ring-lime/70' => $skill->pivot->is_highlighted,
+                                            'bg-paper ring-1 ring-line' => ! $skill->pivot->is_highlighted,
                                         ])>
-                                            <span class="min-w-0 font-semibold text-brand">
+                                            <span class="min-w-0 font-semibold text-ink">
                                                 @if ($skill->pivot->is_highlighted) @svg('heroicon-s-star', 'inline-block size-3.5 -mt-0.5 text-violet', ['aria-hidden' => 'true'])<span class="sr-only">Mise en avant :</span> @endif
                                                 {{ $skill->name }}
                                             </span>
@@ -142,14 +142,14 @@
                     <h2 class="section-title">Réalisations</h2>
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
                         @foreach ($profile->projects as $project)
-                            <article class="flex flex-col overflow-hidden rounded-2xl ring-1 ring-line">
+                            <article class="flex flex-col overflow-hidden rounded-xl border border-line">
                                 @if ($project->image_path)
-                                    <img src="{{ $project->imageUrl(800, 500) }}" alt="Visuel du projet {{ $project->title }}" loading="lazy" class="aspect-[16/10] w-full bg-paper object-cover">
+                                    <img src="{{ $project->imageUrl(800, 500) }}" alt="Visuel du projet {{ $project->title }}" width="800" height="500" loading="lazy" decoding="async" class="aspect-[16/10] w-full bg-paper object-cover">
                                 @else
-                                    <div class="grid aspect-[16/10] place-items-center bg-linear-to-br from-brand to-violet text-3xl font-black text-lime" aria-hidden="true">{{ mb_strtoupper(mb_substr($project->title, 0, 1)) }}</div>
+                                    <div class="grid aspect-[16/10] place-items-center media-fallback text-3xl font-semibold text-violet/60" aria-hidden="true">{{ mb_strtoupper(mb_substr($project->title, 0, 1)) }}</div>
                                 @endif
                                 <div class="flex flex-1 flex-col p-4">
-                                    <h3 class="font-bold text-brand">{{ $project->title }}</h3>
+                                    <h3 class="font-semibold text-ink">{{ $project->title }}</h3>
                                     @if ($project->description)
                                         <p class="mt-1 whitespace-pre-line text-sm text-gray-600">{{ $project->description }}</p>
                                     @endif
@@ -206,7 +206,7 @@
                     <ul class="mt-3 space-y-2">
                         @foreach ($links as $label => $url)
                             <li>
-                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center justify-between gap-3 rounded-xl bg-paper px-4 py-3 font-semibold text-brand hover:bg-violet/10">
+                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center justify-between gap-3 rounded-lg border border-line px-4 py-3 font-medium text-ink hover:border-gray-300 hover:bg-gray-50">
                                     {{ $label }} @svg('heroicon-m-arrow-up-right', 'size-4 text-violet', ['aria-hidden' => 'true'])
                                 </a>
                             </li>

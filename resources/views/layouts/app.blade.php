@@ -7,61 +7,87 @@
     $currentUser = auth()->user();
     $canBrowse = $currentUser->isApproved() || $currentUser->is_admin;
     $navItems = array_filter([
-        ['route' => 'dashboard', 'label' => 'Mon espace', 'active' => request()->routeIs('dashboard', 'account.pending')],
-        ['route' => 'profile.edit', 'label' => 'Mon profil', 'active' => request()->routeIs('profile.*')],
-        $canBrowse ? ['route' => 'directory', 'label' => 'Annuaire', 'active' => request()->routeIs('directory', 'directory.*')] : null,
+        ['route' => 'dashboard', 'label' => 'Mon espace', 'icon' => 'home', 'active' => request()->routeIs('dashboard', 'account.pending')],
+        ['route' => 'profile.edit', 'label' => 'Mon profil', 'icon' => 'user-circle', 'active' => request()->routeIs('profile.*')],
+        $canBrowse ? ['route' => 'directory', 'label' => 'Annuaire', 'icon' => 'users', 'active' => request()->routeIs('directory', 'directory.*')] : null,
     ]);
 @endphp
-<body class="flex min-h-dvh flex-col bg-paper font-sans text-gray-900 antialiased">
-    <a href="#contenu" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-full focus:bg-lime focus:px-4 focus:py-2 focus:font-semibold focus:text-ink">Aller au contenu</a>
+<body class="flex min-h-dvh flex-col bg-paper font-sans text-ink antialiased">
+    <a href="#contenu" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-violet focus:px-4 focus:py-2 focus:font-semibold focus:text-white">Aller au contenu</a>
 
-    <header class="bg-brand">
-        <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
-            <x-logo />
+    <header class="sticky top-0 z-40 border-b border-line bg-white/90 backdrop-blur">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+            <x-logo dark />
 
-            <nav aria-label="Navigation principale" class="hidden items-center gap-1 text-sm md:flex">
+            <nav aria-label="Navigation principale" class="hidden h-full items-center gap-1 text-sm md:flex">
                 @foreach ($navItems as $item)
                     <a href="{{ route($item['route']) }}" @if ($item['active']) aria-current="page" @endif
                        @class([
-                           'rounded-full px-4 py-2 font-semibold transition',
-                           'bg-white/15 text-white' => $item['active'],
-                           'text-white/80 hover:bg-white/10 hover:text-white' => ! $item['active'],
+                           'relative flex h-full items-center px-3 font-medium transition',
+                           'text-ink after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:bg-violet' => $item['active'],
+                           'text-gray-500 hover:text-ink' => ! $item['active'],
                        ])>{{ $item['label'] }}</a>
                 @endforeach
-                @if ($currentUser->is_admin)
-                    <a href="{{ url('/admin') }}" class="rounded-full px-4 py-2 font-semibold text-lime hover:bg-white/10">Admin</a>
-                @endif
             </nav>
 
-            <div class="flex items-center gap-2">
+            <div class="hidden items-center gap-2 md:flex">
                 @if ($currentUser->is_admin)
-                    <a href="{{ url('/admin') }}" class="rounded-full px-3 py-2 text-sm font-semibold text-lime hover:bg-white/10 md:hidden">Admin</a>
+                    <a href="{{ url('/admin') }}" class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-ink">
+                        <span aria-hidden="true" class="size-1.5 rounded-full bg-lime ring-2 ring-lime/30"></span> Admin
+                    </a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="rounded-full border border-white/25 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10 sm:px-4">
-                        <span class="sm:hidden">Quitter</span><span class="hidden sm:inline">Déconnexion</span>
-                    </button>
+                    <button type="submit" class="btn-secondary px-3 py-2 text-sm">Déconnexion</button>
+                </form>
+            </div>
+
+            <button type="button" data-menu-toggle="app-menu" aria-controls="app-menu" aria-expanded="false"
+                    class="-mr-2 grid size-10 place-items-center rounded-lg text-ink hover:bg-gray-100 md:hidden">
+                @svg('heroicon-o-bars-3', 'size-6', ['aria-hidden' => 'true'])
+                <span class="sr-only">Ouvrir le menu</span>
+            </button>
+        </div>
+
+        {{-- Menu mobile : panneau plein écran. --}}
+        <div id="app-menu" data-menu hidden class="fixed inset-0 z-50 flex flex-col bg-white md:hidden">
+            <div class="flex h-16 shrink-0 items-center justify-between border-b border-line px-4">
+                <x-logo dark />
+                <button type="button" data-menu-close class="-mr-2 grid size-10 place-items-center rounded-lg text-ink hover:bg-gray-100">
+                    @svg('heroicon-o-x-mark', 'size-6', ['aria-hidden' => 'true'])
+                    <span class="sr-only">Fermer le menu</span>
+                </button>
+            </div>
+            <div class="flex flex-1 flex-col overflow-y-auto px-4 py-6">
+                <p class="px-3 text-sm text-gray-500">Connecté en tant que <span class="font-semibold text-ink">{{ $currentUser->first_name }}</span></p>
+                <nav aria-label="Navigation mobile" class="mt-4 flex flex-col gap-1">
+                    @foreach ($navItems as $item)
+                        <a href="{{ route($item['route']) }}" @if ($item['active']) aria-current="page" @endif
+                           @class([
+                               'flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium',
+                               'bg-violet/8 text-violet' => $item['active'],
+                               'text-ink hover:bg-gray-50' => ! $item['active'],
+                           ])>
+                            @svg('heroicon-o-'.$item['icon'], 'size-5', ['aria-hidden' => 'true'])
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
+                    @if ($currentUser->is_admin)
+                        <a href="{{ url('/admin') }}" class="flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-ink hover:bg-gray-50">
+                            @svg('heroicon-o-cog-6-tooth', 'size-5', ['aria-hidden' => 'true'])
+                            Admin
+                        </a>
+                    @endif
+                </nav>
+                <form method="POST" action="{{ route('logout') }}" class="mt-auto border-t border-line pt-6">
+                    @csrf
+                    <button type="submit" class="btn-secondary w-full py-3 text-base">Déconnexion</button>
                 </form>
             </div>
         </div>
-
-        {{-- Navigation mobile : onglets sous l'en-tête. --}}
-        <nav aria-label="Navigation principale" class="border-t border-white/10 md:hidden">
-            <div class="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-3 py-2 text-sm">
-                @foreach ($navItems as $item)
-                    <a href="{{ route($item['route']) }}" @if ($item['active']) aria-current="page" @endif
-                       @class([
-                           'flex-1 whitespace-nowrap rounded-full px-3 py-2 text-center font-semibold',
-                           'bg-lime text-ink' => $item['active'],
-                           'text-white/80' => ! $item['active'],
-                       ])>{{ $item['label'] }}</a>
-                @endforeach
-            </div>
-        </nav>
     </header>
 
-    <main id="contenu" class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+    <main id="contenu" class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         @if (session('status'))
             <div class="alert mb-6" role="status">{{ session('status') }}</div>
         @endif
@@ -69,8 +95,6 @@
         {{ $slot }}
     </main>
 
-    <footer class="border-t border-line py-6 text-center text-xs text-gray-500">
-        © {{ now()->year }} Bénin Codeurs · Talent Board de la communauté VIP
-    </footer>
+    <x-site-footer />
 </body>
 </html>

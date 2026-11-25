@@ -12,5 +12,5 @@
                 stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $offset }}"
                 @class(['transition-all duration-700', 'stroke-lime' => $reached, 'stroke-violet' => ! $reached]) />
     </svg>
-    <span class="absolute inset-0 grid place-items-center text-lg font-extrabold text-brand">{{ $value }}&nbsp;%</span>
+    <span class="absolute inset-0 grid place-items-center text-lg font-semibold text-ink">{{ $value }}&nbsp;%</span>
 </div>

@@ -25,6 +25,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->passwordReset()
             ->brandName('Talent Board · Admin')
@@ -34,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.png'))
             ->colors([
                 'primary' => Color::hex('#6d2399'),
-                'gray' => Color::Slate,
+                'gray' => Color::Zinc,
             ])
             ->font('Inter')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

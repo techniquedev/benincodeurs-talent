@@ -1,5 +1,5 @@
 <div class="card">
-    <h1 class="text-2xl font-extrabold tracking-tight text-brand">Connexion</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink">Connexion</h1>
     <p class="mt-1 text-sm text-gray-600">Accède à ton espace membre du Talent Board.</p>
 
     @if (session('status'))

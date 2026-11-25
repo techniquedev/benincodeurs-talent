@@ -3,48 +3,63 @@
     $user = $profile->user;
     $highlighted = $profile->highlightedSkills();
     $cardSkills = ($highlighted->isNotEmpty() ? $highlighted : $profile->skills)->take(3);
+    $photoUrl = $profile->photoUrl(600);
+    $initials = mb_strtoupper(mb_substr($user->first_name, 0, 1).mb_substr($user->last_name, 0, 1));
 @endphp
-<article {{ $attributes->merge(['class' => 'group relative flex flex-col rounded-card bg-white p-5 shadow-lg shadow-night/5 ring-1 ring-line transition hover:-translate-y-0.5 hover:shadow-xl hover:ring-violet/30']) }}>
-    @if ($profile->is_featured)
-        <span class="badge absolute top-4 right-4 bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
-    @endif
+<article {{ $attributes->merge(['class' => 'group relative flex flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-gray-300 hover:shadow-lg hover:shadow-gray-900/5 focus-within:ring-4 focus-within:ring-violet/15']) }}>
+    <div class="relative aspect-[4/3] overflow-hidden bg-paper">
+        @if ($photoUrl)
+            <img src="{{ $photoUrl }}" alt="Photo de {{ $user->name }}" width="600" height="600" loading="lazy" decoding="async"
+                 class="size-full object-cover transition duration-500 group-hover:scale-[1.02] motion-reduce:transition-none">
+        @else
+            <span aria-hidden="true" class="media-fallback grid size-full place-items-center text-4xl font-semibold tracking-tight text-violet/70">{{ $initials }}</span>
+        @endif
 
-    <div class="flex items-center gap-4">
-        <x-avatar :profile="$profile" :user="$user" size="size-16" :pixels="160" />
-        <div class="min-w-0 {{ $profile->is_featured ? 'pr-20' : '' }}">
-            <h2 class="truncate text-lg font-extrabold leading-tight text-brand">
-                <a href="{{ route('directory.show', $profile) }}" class="after:absolute after:inset-0 focus:outline-none">{{ $user->name }}</a>
-            </h2>
-            @if ($profile->headline)
-                <p class="mt-0.5 line-clamp-2 text-sm text-gray-600">{{ $profile->headline }}</p>
-            @endif
-        </div>
-    </div>
-
-    <div class="mt-4 flex flex-wrap gap-1.5">
-        @if ($profile->level)
-            <span class="badge bg-violet/10 text-violet">{{ $profile->level->label() }}</span>
+        @if ($profile->is_featured)
+            <span class="badge absolute top-3 left-3 bg-ink text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
         @endif
         @if ($profile->availability)
-            <span class="badge {{ $profile->availability->badgeClasses() }}">{{ $profile->availability->label() }}</span>
+            <span class="badge absolute right-3 bottom-3 bg-white/95 text-ink shadow-sm ring-1 ring-black/5 backdrop-blur">
+                <span aria-hidden="true" @class([
+                    'size-1.5 rounded-full',
+                    'bg-lime ring-2 ring-lime/40' => $profile->availability === \App\Enums\Availability::OpenToMissions,
+                    'bg-violet' => $profile->availability === \App\Enums\Availability::OpenToJob,
+                    'bg-gray-400' => $profile->availability === \App\Enums\Availability::Unavailable,
+                ])></span>
+                {{ $profile->availability->label() }}
+            </span>
         @endif
     </div>
 
-    @if ($cardSkills->isNotEmpty())
-        <ul class="mt-4 flex flex-wrap gap-1.5" aria-label="Compétences mises en avant">
-            @foreach ($cardSkills as $skill)
-                <li class="rounded-lg bg-paper px-2.5 py-1 text-xs font-semibold text-brand ring-1 ring-line">{{ $skill->name }}</li>
-            @endforeach
-        </ul>
-    @endif
-
-    <div class="mt-auto flex items-center justify-between gap-2 pt-5 text-sm text-gray-500">
-        <span class="inline-flex min-w-0 items-center gap-1.5">
-            @if ($profile->city)
-                <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" class="size-4 shrink-0 text-violet"><path fill-rule="evenodd" d="M9.69 18.93a.75.75 0 0 0 .62 0c.12-.06 5.94-2.98 5.94-9.18a6.25 6.25 0 1 0-12.5 0c0 6.2 5.82 9.12 5.94 9.18ZM10 12a2.25 2.25 0 1 0 0-4.5A2.25 2.25 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
-                <span class="truncate">{{ $profile->city }}</span>
+    <div class="flex flex-1 flex-col p-4 sm:p-5">
+        <div class="flex items-start justify-between gap-3">
+            <h2 class="min-w-0 truncate text-base font-semibold text-ink">
+                <a href="{{ route('directory.show', $profile) }}" class="after:absolute after:inset-0 focus:outline-none">{{ $user->name }}</a>
+            </h2>
+            @if ($profile->level)
+                <span class="badge shrink-0 bg-violet/10 text-violet">{{ $profile->level->label() }}</span>
             @endif
-        </span>
-        <span class="shrink-0 font-semibold text-violet inline-flex items-center gap-1 group-hover:underline" aria-hidden="true">Voir le profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
+        </div>
+        @if ($profile->headline)
+            <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ $profile->headline }}</p>
+        @endif
+
+        @if ($cardSkills->isNotEmpty())
+            <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Compétences mises en avant">
+                @foreach ($cardSkills as $skill)
+                    <li class="rounded-md border border-line bg-paper px-2 py-0.5 text-xs font-medium text-gray-700">{{ $skill->name }}</li>
+                @endforeach
+            </ul>
+        @endif
+
+        <div class="mt-auto flex items-center justify-between gap-2 pt-4 text-sm text-gray-500">
+            <span class="inline-flex min-w-0 items-center gap-1.5">
+                @if ($profile->city)
+                    @svg('heroicon-m-map-pin', 'size-4 shrink-0 text-gray-400', ['aria-hidden' => 'true'])
+                    <span class="truncate">{{ $profile->city }}</span>
+                @endif
+            </span>
+            <span class="inline-flex shrink-0 items-center gap-1 font-medium text-violet opacity-0 transition group-hover:opacity-100 max-lg:opacity-100" aria-hidden="true">Voir @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
+        </div>
     </div>
 </article>

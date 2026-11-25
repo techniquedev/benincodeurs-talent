@@ -15,7 +15,7 @@
     <div class="flex flex-wrap items-end justify-between gap-3">
         <div>
             <p class="text-sm font-semibold text-violet">Étape {{ $step }} sur {{ $total }}</p>
-            <h1 class="text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Mon profil</h1>
+            <h1 class="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Mon profil</h1>
         </div>
         <a href="{{ route('profile.preview') }}" class="btn-secondary text-sm">Voir mon profil</a>
     </div>
@@ -26,7 +26,7 @@
             <div class="card flex items-center gap-4 p-5 sm:p-5 lg:flex-col lg:text-center">
                 <x-completion-ring :value="$completion" :threshold="$minCompletion" class="size-20 lg:size-28" />
                 <div>
-                    <p class="font-bold text-brand">Profil complet à {{ $completion }}&nbsp;%</p>
+                    <p class="font-semibold text-ink">Profil complet à {{ $completion }}&nbsp;%</p>
                     @if ($completion >= $minCompletion)
                         <p class="mt-1 text-sm text-gray-600">
                             @if ($user->isApproved())
@@ -43,20 +43,20 @@
 
             {{-- Étapes : onglets défilants sur mobile, liste sur grand écran --}}
             <nav aria-label="Étapes du profil" class="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
-                <ol class="flex gap-2 lg:flex-col lg:gap-1 lg:rounded-card lg:bg-white lg:p-3 lg:shadow-xl lg:shadow-night/10">
+                <ol class="flex gap-2 pb-1 lg:flex-col lg:gap-0.5 lg:rounded-card lg:border lg:border-line lg:bg-white lg:p-2">
                     @foreach ($steps as $number => $label)
                         <li class="shrink-0">
                             <button type="button" wire:click="goToStep({{ $number }})" @if ($number === $step) aria-current="step" @endif
                                     @class([
-                                        'flex w-full items-center gap-2.5 rounded-full px-3 py-2 text-left text-sm font-semibold transition lg:rounded-xl',
-                                        'bg-brand text-white' => $number === $step,
-                                        'bg-white text-brand hover:bg-brand/5 lg:bg-transparent' => $number !== $step,
+                                        'flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm font-medium transition lg:border-0',
+                                        'border-violet bg-violet text-white lg:bg-violet/8 lg:text-violet' => $number === $step,
+                                        'border-line bg-white text-gray-700 hover:bg-gray-50 lg:bg-transparent' => $number !== $step,
                                     ])>
                                 <span @class([
                                     'grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold',
                                     'bg-lime text-ink' => $stepDone($number),
-                                    'bg-white/20 text-white' => ! $stepDone($number) && $number === $step,
-                                    'bg-brand/10 text-brand' => ! $stepDone($number) && $number !== $step,
+                                    'bg-white/25 text-white lg:bg-violet lg:text-white' => ! $stepDone($number) && $number === $step,
+                                    'bg-gray-100 text-gray-600' => ! $stepDone($number) && $number !== $step,
                                 ])>
                                     @if ($stepDone($number)) @svg('heroicon-m-check', 'size-4', ['aria-hidden' => 'true']) @else {{ $number }} @endif
                                 </span>
@@ -70,7 +70,7 @@
             @php $missing = $checklist->where('done', false); @endphp
             @if ($missing->isNotEmpty())
                 <div class="card hidden p-5 sm:p-5 lg:block">
-                    <p class="text-sm font-bold text-brand">Pour compléter ton profil</p>
+                    <p class="text-sm font-semibold text-ink">Pour compléter ton profil</p>
                     <ul class="mt-3 space-y-2 text-sm">
                         @foreach ($missing as $item)
                             <li>
@@ -87,7 +87,7 @@
 
         {{-- Formulaire de l'étape en cours --}}
         <form wire:submit="saveAndContinue" class="card" novalidate>
-            <h2 class="text-xl font-extrabold tracking-tight text-brand">{{ $steps[$step] }}</h2>
+            <h2 class="text-xl font-semibold tracking-tight text-ink">{{ $steps[$step] }}</h2>
 
             {{-- 1. Identité --}}
             @if ($step === 1)
@@ -154,8 +154,8 @@
                         <div class="grid gap-2 sm:grid-cols-2">
                             @foreach (Profession::cases() as $option)
                                 <label @class([
-                                    'flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition',
-                                    'border-violet bg-violet/5 text-brand ring-2 ring-violet/20' => $profession === $option->value,
+                                    'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold transition',
+                                    'border-violet bg-violet/5 text-ink ring-2 ring-violet/20' => $profession === $option->value,
                                     'border-line text-gray-700 hover:border-violet/40' => $profession !== $option->value,
                                 ])>
                                     <input type="radio" wire:model.live="profession" value="{{ $option->value }}" class="size-4 accent-violet">
@@ -171,13 +171,13 @@
                         <div class="grid gap-2">
                             @foreach (ExperienceLevel::cases() as $option)
                                 <label @class([
-                                    'flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 transition',
+                                    'flex cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 transition',
                                     'border-violet bg-violet/5 ring-2 ring-violet/20' => $level === $option->value,
                                     'border-line hover:border-violet/40' => $level !== $option->value,
                                 ])>
                                     <input type="radio" wire:model.live="level" value="{{ $option->value }}" class="mt-1 size-4 accent-violet">
                                     <span>
-                                        <span class="block text-sm font-bold text-brand">{{ $option->label() }}</span>
+                                        <span class="block text-sm font-semibold text-ink">{{ $option->label() }}</span>
                                         <span class="block text-sm text-gray-600">{{ $option->description() }}</span>
                                     </span>
                                 </label>
@@ -207,18 +207,18 @@
                     Mets-en {{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant : elles s'affichent sur ta carte dans l'annuaire.
                 </p>
 
-                @error('skills') <div class="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $message }}</div> @enderror
+                @error('skills') <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $message }}</div> @enderror
 
                 <div class="mt-6">
                     <div class="flex items-center justify-between gap-2">
-                        <h3 class="text-sm font-bold text-brand">Mes compétences</h3>
+                        <h3 class="text-sm font-semibold text-ink">Mes compétences</h3>
                         <p class="text-xs font-semibold text-gray-500">{{ count($skills) }}/{{ Profile::MAX_SKILLS }} · {{ $highlightedCount }}/{{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant</p>
                     </div>
 
                     @if ($skills === [])
-                        <p class="mt-3 rounded-xl border border-dashed border-line px-4 py-6 text-center text-sm text-gray-500">Aucune compétence choisie. Touche une compétence ci-dessous pour l'ajouter.</p>
+                        <p class="mt-3 rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-gray-500">Aucune compétence choisie. Touche une compétence ci-dessous pour l'ajouter.</p>
                     @else
-                        <ul class="mt-3 divide-y divide-line rounded-xl border border-line">
+                        <ul class="mt-3 divide-y divide-line rounded-lg border border-line">
                             @foreach ($skills as $i => $skill)
                                 <li wire:key="selected-{{ $skill['id'] }}" class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex-nowrap">
                                     <button type="button" wire:click="toggleHighlight({{ $skill['id'] }})"
@@ -232,7 +232,7 @@
                                         @svg('heroicon-s-star', 'size-5', ['aria-hidden' => 'true'])
                                         <span class="sr-only">{{ $skill['highlighted'] ? 'Mise en avant' : 'Mettre en avant' }}</span>
                                     </button>
-                                    <span class="min-w-0 flex-1 font-semibold text-brand">{{ $skillNames[$skill['id']] ?? 'Compétence retirée' }}</span>
+                                    <span class="min-w-0 flex-1 font-semibold text-ink">{{ $skillNames[$skill['id']] ?? 'Compétence retirée' }}</span>
                                     <label class="sr-only" for="skill-level-{{ $skill['id'] }}">Niveau en {{ $skillNames[$skill['id']] ?? '' }}</label>
                                     <select wire:model="skills.{{ $i }}.level" id="skill-level-{{ $skill['id'] }}" class="field-select w-auto min-w-36 py-2 text-base sm:text-sm">
                                         @foreach (SkillLevel::cases() as $option)
@@ -257,7 +257,7 @@
                             <section wire:key="category-{{ $category->id }}"
                                      data-names="{{ mb_strtolower($category->skills->pluck('name')->join('|')) }}"
                                      x-show="q === '' || $el.dataset.names.includes(q.toLowerCase())">
-                                <h3 class="text-xs font-bold uppercase tracking-wide text-gray-500">{{ $category->name }}</h3>
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ $category->name }}</h3>
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     @foreach ($category->skills as $skillOption)
                                         @php $isSelected = in_array($skillOption->id, $selectedIds, true); @endphp
@@ -267,7 +267,7 @@
                                                 x-show="q === '' || $el.dataset.name.includes(q.toLowerCase())"
                                                 @class([
                                                     'chip',
-                                                    'border-brand bg-brand text-white' => $isSelected,
+                                                    'border-violet bg-violet text-white' => $isSelected,
                                                     'border-line bg-white text-gray-700 hover:border-violet hover:text-violet' => ! $isSelected,
                                                 ])>
                                             @if ($isSelected) @svg('heroicon-m-check', 'size-4', ['aria-hidden' => 'true']) @else @svg('heroicon-m-plus', 'size-4', ['aria-hidden' => 'true']) @endif
@@ -292,7 +292,7 @@
                             @foreach (WorkStatus::cases() as $option)
                                 <label @class([
                                     'chip cursor-pointer px-4 py-2',
-                                    'border-brand bg-brand text-white' => $work_status === $option->value,
+                                    'border-violet bg-violet text-white' => $work_status === $option->value,
                                     'border-line bg-white text-gray-700 hover:border-violet' => $work_status !== $option->value,
                                 ])>
                                     <input type="radio" wire:model.live="work_status" value="{{ $option->value }}" class="sr-only">
@@ -318,8 +318,8 @@
                         <div class="grid gap-2 sm:grid-cols-3">
                             @foreach (Availability::cases() as $option)
                                 <label @class([
-                                    'flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold transition',
-                                    'border-violet bg-violet/5 text-brand ring-2 ring-violet/20' => $availability === $option->value,
+                                    'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold transition',
+                                    'border-violet bg-violet/5 text-ink ring-2 ring-violet/20' => $availability === $option->value,
                                     'border-line text-gray-700 hover:border-violet/40' => $availability !== $option->value,
                                 ])>
                                     <input type="radio" wire:model.live="availability" value="{{ $option->value }}" class="size-4 accent-violet">
@@ -339,9 +339,9 @@
                 <div class="mt-6 space-y-5">
                     @forelse ($projects as $i => $project)
                         @php $upload = $projectImages[$project['key']] ?? null; @endphp
-                        <fieldset wire:key="project-{{ $project['key'] }}" class="rounded-2xl border border-line p-4 sm:p-5">
+                        <fieldset wire:key="project-{{ $project['key'] }}" class="rounded-lg border border-line p-4 sm:p-5">
                             <div class="flex items-center justify-between gap-2">
-                                <legend class="text-sm font-bold text-brand">Réalisation {{ $i + 1 }}</legend>
+                                <legend class="text-sm font-semibold text-ink">Réalisation {{ $i + 1 }}</legend>
                                 <button type="button" wire:click="removeProject({{ $i }})" wire:confirm="Retirer cette réalisation ? Elle sera supprimée à l'enregistrement." class="text-sm font-semibold text-red-700 hover:underline">Retirer</button>
                             </div>
 
@@ -384,7 +384,7 @@
                             </div>
                         </fieldset>
                     @empty
-                        <p class="rounded-xl border border-dashed border-line px-4 py-6 text-center text-sm text-gray-500">Aucune réalisation pour l'instant.</p>
+                        <p class="rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-gray-500">Aucune réalisation pour l'instant.</p>
                     @endforelse
 
                     @if (count($projects) < Profile::MAX_PROJECTS)
@@ -410,17 +410,17 @@
                 <fieldset class="mt-8">
                     <legend class="field-label">Contact visible par les autres membres</legend>
                     <div class="space-y-3">
-                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3">
+                        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-line px-4 py-3">
                             <input type="checkbox" wire:model="whatsapp_visible" class="mt-0.5 size-5 rounded accent-violet">
                             <span>
-                                <span class="block text-sm font-bold text-brand">Afficher mon WhatsApp</span>
+                                <span class="block text-sm font-semibold text-ink">Afficher mon WhatsApp</span>
                                 <span class="block text-sm text-gray-600">{{ $user->whatsapp ?: 'Aucun numéro enregistré' }}</span>
                             </span>
                         </label>
-                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3">
+                        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-line px-4 py-3">
                             <input type="checkbox" wire:model="email_visible" class="mt-0.5 size-5 rounded accent-violet">
                             <span>
-                                <span class="block text-sm font-bold text-brand">Afficher mon e-mail</span>
+                                <span class="block text-sm font-semibold text-ink">Afficher mon e-mail</span>
                                 <span class="block text-sm break-all text-gray-600">{{ $user->email }}</span>
                             </span>
                         </label>

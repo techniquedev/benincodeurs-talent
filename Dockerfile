@@ -18,6 +18,8 @@ COPY vite.config.js ./
 COPY resources ./resources
 COPY app ./app
 COPY --from=vendor /app/vendor/laravel/framework/src/Illuminate/Pagination/resources/views ./vendor/laravel/framework/src/Illuminate/Pagination/resources/views
+# Thème admin Filament : il importe les CSS de Filament depuis vendor.
+COPY --from=vendor /app/vendor/filament ./vendor/filament
 RUN npm run build
 
 # --- 3. Image finale -------------------------------------------------------------------------

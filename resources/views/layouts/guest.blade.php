@@ -3,24 +3,22 @@
 <head>
     @include('layouts.partials.head')
 </head>
-<body class="min-h-dvh bg-night font-sans text-gray-900 antialiased">
-    <div class="relative isolate flex min-h-dvh flex-col overflow-hidden">
-        <div aria-hidden="true" class="pointer-events-none absolute -top-32 -right-32 -z-10 size-96 rounded-full bg-violet/40 blur-3xl"></div>
-        <div aria-hidden="true" class="pointer-events-none absolute -bottom-40 -left-24 -z-10 size-80 rounded-full bg-lime/15 blur-3xl"></div>
+<body class="flex min-h-dvh flex-col bg-paper font-sans text-ink antialiased">
+    <header class="border-b border-line bg-white">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+            <x-logo dark />
+            <a href="{{ route('home') }}" class="inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-medium text-gray-500 hover:text-ink">
+                @svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) <span class="hidden sm:inline">Retour à l'accueil</span><span class="sm:hidden">Accueil</span>
+            </a>
+        </div>
+    </header>
 
-        <header class="px-5 pt-6 sm:px-8">
-            <x-logo />
-        </header>
+    <main class="flex flex-1 items-start justify-center px-4 py-10 sm:items-center sm:px-6 sm:py-16">
+        <div class="w-full max-w-md">
+            {{ $slot }}
+        </div>
+    </main>
 
-        <main class="flex flex-1 items-start justify-center px-4 py-8 sm:items-center sm:px-6 sm:py-12">
-            <div class="w-full max-w-md">
-                {{ $slot }}
-            </div>
-        </main>
-
-        <footer class="px-5 pb-6 text-center text-xs text-white/60">
-            © {{ now()->year }} Bénin Codeurs · Communauté VIP
-        </footer>
-    </div>
+    <x-site-footer />
 </body>
 </html>

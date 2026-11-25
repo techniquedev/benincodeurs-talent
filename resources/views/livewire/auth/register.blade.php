@@ -9,21 +9,21 @@
             <p class="font-semibold text-violet">Étape {{ $step }} sur {{ $totalSteps }}</p>
             <p class="text-gray-500">{{ $stepTitles[$step] }}</p>
         </div>
-        <div class="mt-2 h-2 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-label="Progression de l'inscription"
+        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100" role="progressbar" aria-label="Progression de l'inscription"
              aria-valuemin="1" aria-valuemax="{{ $totalSteps }}" aria-valuenow="{{ $step }}">
-            <div class="h-full rounded-full bg-lime transition-all duration-300" style="width: {{ $step / $totalSteps * 100 }}%"></div>
+            <div class="h-full rounded-full bg-violet transition-all motion-reduce:transition-none duration-300" style="width: {{ $step / $totalSteps * 100 }}%"></div>
         </div>
     </div>
 
     @if ($step > 1)
-        <button type="button" wire:click="back" class="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-brand">
+        <button type="button" wire:click="back" class="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-ink">
             <span aria-hidden="true">←</span> Retour
         </button>
     @endif
 
     {{-- Étape 1 : e-mail --}}
     @if ($step === 1)
-        <h1 class="mt-6 text-2xl font-extrabold tracking-tight text-brand">Crée ton compte</h1>
+        <h1 class="mt-6 text-2xl font-semibold tracking-tight text-ink">Crée ton compte</h1>
         <p class="mt-1 text-sm text-gray-600">Le Talent Board est réservé aux membres VIP de la communauté Bénin Codeurs. Commence par l'adresse e-mail de ton adhésion.</p>
 
         <form wire:submit="checkEmail" class="mt-6 space-y-4" novalidate>
@@ -34,19 +34,19 @@
             </div>
 
             @if ($vipOutcome === 'not_found')
-                <div class="rounded-2xl bg-violet/10 p-4 text-sm text-gray-800" role="status">
-                    <p class="font-bold text-brand">Le Talent Board est réservé aux membres VIP</p>
+                <div class="rounded-lg border border-violet/15 bg-violet/5 p-4 text-sm text-gray-800" role="status">
+                    <p class="font-semibold text-ink">Le Talent Board est réservé aux membres VIP</p>
                     <p class="mt-1">Nous n'avons pas trouvé d'adhésion VIP avec cette adresse. Si tu as utilisé une autre adresse pour la communauté, essaie avec celle-là. Sinon, on serait ravis de t'accueillir parmi nous !</p>
                     <a href="{{ $vipJoinUrl }}" target="_blank" rel="noopener" class="btn-primary mt-4 w-full">Rejoindre la communauté VIP</a>
                 </div>
             @elseif ($vipOutcome === 'expired')
-                <div class="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900" role="status">
+                <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="status">
                     <p class="font-bold">Ton adhésion VIP a expiré</p>
                     <p class="mt-1">Renouvelle-la pour accéder au Talent Board : tu pourras ensuite créer ton compte avec cette adresse.</p>
                     <a href="{{ $vipJoinUrl }}" target="_blank" rel="noopener" class="btn-primary mt-4 w-full">Rejoindre la communauté VIP</a>
                 </div>
             @elseif ($vipOutcome === 'unavailable')
-                <div class="rounded-2xl bg-red-50 p-4 text-sm text-red-800" role="alert">
+                <div class="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert">
                     <p class="font-bold">Vérification impossible pour le moment</p>
                     <p class="mt-1">Nous n'arrivons pas à joindre le service de la communauté. Réessaie dans quelques minutes.</p>
                 </div>
@@ -61,7 +61,7 @@
 
     {{-- Étape 2 : code reçu par e-mail --}}
     @if ($step === 2)
-        <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-brand">Confirme ton e-mail</h1>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink">Confirme ton e-mail</h1>
 
         @if ($emailVerified)
             <p class="mt-1 text-sm text-gray-600">L'adresse <span class="font-semibold text-gray-900">{{ $email }}</span> est déjà confirmée.</p>
@@ -73,7 +73,7 @@
             </p>
 
             @if (session('status'))
-                <p class="mt-4 rounded-xl bg-lime/20 px-4 py-3 text-sm text-ink" role="status">{{ session('status') }}</p>
+                <p class="alert mt-4" role="status">{{ session('status') }}</p>
             @endif
 
             <form wire:submit="verifyCode" class="mt-6 space-y-4" novalidate>
@@ -99,7 +99,7 @@
 
     {{-- Étape 3 : informations --}}
     @if ($step === 3)
-        <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-brand">Mes informations</h1>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink">Mes informations</h1>
         <p class="mt-1 text-sm text-gray-600">Vérifie et complète ce que nous connaissons déjà de toi.</p>
 
         <form wire:submit="saveInformation" class="mt-6 space-y-4" novalidate>
@@ -134,7 +134,7 @@
 
     {{-- Étape 4 : mot de passe --}}
     @if ($step === 4)
-        <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-brand">Choisis ton mot de passe</h1>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink">Choisis ton mot de passe</h1>
         <p class="mt-1 text-sm text-gray-600">Dernière étape avant de remplir ton profil.</p>
 
         <form wire:submit="register" class="mt-6 space-y-4" novalidate>

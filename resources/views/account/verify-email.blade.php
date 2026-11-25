@@ -1,6 +1,6 @@
 <x-layouts::guest title="Confirme ton e-mail">
     <div class="card">
-        <h1 class="text-2xl font-extrabold tracking-tight text-brand">Confirme ton adresse e-mail</h1>
+        <h1 class="text-2xl font-semibold tracking-tight text-ink">Confirme ton adresse e-mail</h1>
         <p class="mt-3 text-sm text-gray-700">
             Nous venons d'envoyer un lien de confirmation à <strong>{{ auth()->user()->email }}</strong>.
             Clique dessus pour activer ton compte. Pense à vérifier tes courriers indésirables.

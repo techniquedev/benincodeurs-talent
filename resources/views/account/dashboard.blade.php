@@ -5,7 +5,7 @@
     $missing = collect($profile->completionChecklist())->where('done', false)->take(4);
 @endphp
 <x-layouts::app title="Mon espace">
-    <h1 class="text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Bonjour {{ $user->first_name }}</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Bonjour {{ $user->first_name }}</h1>
     <p class="mt-1 text-gray-600">Bienvenue dans ton espace membre du Talent Board.</p>
 
     <div class="mt-6 space-y-6">
@@ -36,7 +36,7 @@
                     <ul class="mt-5 grid gap-2 sm:grid-cols-2">
                         @foreach ($missing as $item)
                             <li>
-                                <a href="{{ route('profile.edit', ['etape' => $item['step']]) }}" class="flex items-center justify-between gap-2 rounded-xl bg-paper px-3 py-2.5 text-sm text-gray-700 hover:bg-violet/10">
+                                <a href="{{ route('profile.edit', ['etape' => $item['step']]) }}" class="flex items-center justify-between gap-2 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-gray-700 hover:bg-violet/5">
                                     <span>{{ $item['label'] }}</span>
                                     <span class="text-xs font-bold text-violet">+{{ $item['weight'] }}&nbsp;%</span>
                                 </a>
@@ -55,11 +55,12 @@
 
             <div class="space-y-6">
                 @if ($canBrowse)
-                    <section class="relative overflow-hidden rounded-card bg-brand p-6 text-white sm:p-8">
-                        <div aria-hidden="true" class="pointer-events-none absolute -right-10 -bottom-10 size-40 rounded-full bg-lime/20 blur-2xl"></div>
-                        <h2 class="relative text-lg font-extrabold">L'annuaire des talents</h2>
-                        <p class="relative mt-1 text-sm text-white/80">Trouve un développeur, un designer ou un expert data de la communauté.</p>
-                        <a href="{{ route('directory') }}" class="btn-primary relative mt-5">Explorer l'annuaire</a>
+                    <section class="card relative overflow-hidden">
+                        <span aria-hidden="true" class="absolute inset-x-0 top-0 h-1 bg-lime"></span>
+                        <span class="grid size-10 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-users', 'size-5')</span>
+                        <h2 class="section-title mt-4">L'annuaire des talents</h2>
+                        <p class="mt-1 text-sm text-gray-600">Trouve un développeur, un designer ou un expert data de la communauté.</p>
+                        <a href="{{ route('directory') }}" class="btn-primary mt-5 w-full sm:w-full">Explorer l'annuaire @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</a>
                     </section>
                 @endif
 
@@ -78,7 +79,7 @@
                         </div>
                         <div class="flex justify-between gap-4">
                             <dt class="text-gray-500">E-mail</dt>
-                            <dd class="truncate font-medium">{{ $user->email }}</dd>
+                            <dd class="min-w-0 truncate font-medium">{{ $user->email }}</dd>
                         </div>
                         @if ($user->whatsapp)
                             <div class="flex justify-between gap-4">

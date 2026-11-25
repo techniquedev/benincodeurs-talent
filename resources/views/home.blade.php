@@ -1,132 +1,164 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    @include('layouts.partials.head', ['title' => null])
-    <meta name="description" content="Le Talent Board réunit les membres de la communauté VIP Bénin Codeurs : profils, compétences, réalisations et annuaire.">
-</head>
-<body class="min-h-dvh bg-paper font-sans text-gray-900 antialiased">
-    {{-- En-tête + héros --}}
-    <div class="relative isolate overflow-hidden bg-night text-white">
-        <div aria-hidden="true" class="pointer-events-none absolute -top-40 -right-32 -z-10 size-[28rem] rounded-full bg-violet/50 blur-3xl"></div>
-        <div aria-hidden="true" class="pointer-events-none absolute -bottom-48 -left-32 -z-10 size-96 rounded-full bg-lime/15 blur-3xl"></div>
-
-        <header class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
-            <x-logo />
-            <nav class="flex items-center gap-2 text-sm" aria-label="Compte">
-                <a href="{{ route('login') }}" class="rounded-full px-4 py-2 font-semibold text-white/90 hover:bg-white/10">Connexion</a>
-                <a href="{{ route('register') }}" class="hidden rounded-full bg-lime px-4 py-2 font-semibold text-ink hover:bg-lime-hover sm:inline-flex">Créer mon compte</a>
-            </nav>
-        </header>
-
-        <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 sm:pt-12 sm:pb-24 lg:grid-cols-[1.1fr_1fr]">
+@php
+    $steps = [
+        ['etape-1.jpg', 'Inscris-toi', "Ton e-mail d'adhésion VIP, le code reçu par e-mail, tes informations et ton mot de passe."],
+        ['etape-2.jpg', 'Remplis ton profil', 'Six étapes courtes, enregistrées au fur et à mesure : métier, niveau, compétences, réalisations, liens.'],
+        ['etape-3.jpg', "Rejoins l'annuaire", "Dès que ton profil est complet, tu apparais dans l'annuaire des membres."],
+    ];
+    $features = [
+        ['feature-1.jpg', 'magnifying-glass', 'Trouver vite', 'Recherche et filtres par métier, compétence, niveau, ville et disponibilité : la bonne personne en quelques secondes.'],
+        ['feature-2.jpg', 'puzzle-piece', 'Montrer son travail', "Jusqu'à 10 compétences avec ton niveau, et 3 réalisations avec image et lien."],
+        ['feature-3.jpg', 'users', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
+        ['feature-4.jpg', 'lock-closed', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
+    ];
+    $statItems = [
+        [$stats['members'], $stats['members'] > 1 ? 'membres validés' : 'membre validé'],
+        [$stats['professions'], $stats['professions'] > 1 ? 'métiers représentés' : 'métier représenté'],
+        [$stats['cities'], $stats['cities'] > 1 ? 'villes' : 'ville'],
+    ];
+    $image = fn (string $file): string => asset('images/home/'.$file);
+@endphp
+<x-layouts::public description="Le Talent Board réunit les membres de la communauté VIP Bénin Codeurs : profils, compétences, réalisations et annuaire.">
+    {{-- Héros --}}
+    <section class="relative overflow-hidden">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] bg-linear-to-b from-paper to-white"></div>
+        <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-10 pb-14 sm:px-6 sm:pt-14 md:grid-cols-[1.05fr_1fr] md:gap-12 lg:gap-16 lg:pt-20 lg:pb-24">
             <div>
-                <p class="inline-flex rounded-full bg-lime px-3 py-1 text-xs font-bold uppercase tracking-wide text-ink">Communauté VIP Bénin Codeurs</p>
-                <h1 class="mt-5 text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-                    Les talents de la communauté, <span class="text-lime">réunis au même endroit.</span>
+                <p class="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold text-gray-700">
+                    <span aria-hidden="true" class="size-2 rounded-full bg-lime ring-2 ring-lime/30"></span>
+                    Communauté VIP Bénin Codeurs
+                </p>
+                <h1 class="mt-5 text-4xl leading-[1.08] font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+                    Les talents de la communauté, <span class="text-violet">réunis au même endroit.</span>
                 </h1>
-                <p class="mt-5 max-w-xl text-base text-white/80 sm:text-lg">
+                <p class="mt-5 max-w-xl text-base text-gray-600 sm:text-lg">
                     Développeurs, designers, experts data et IA, chefs de projet, marketeurs : crée ton profil, montre tes réalisations
                     et trouve les bonnes personnes pour collaborer, recruter ou te lancer en mission.
                 </p>
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <a href="{{ route('register') }}" class="btn-primary text-base">Créer mon profil</a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">J'ai déjà un compte</a>
+                    <a href="{{ route('register') }}" class="btn-primary px-6 py-3 text-base">Créer mon profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</a>
+                    <a href="{{ route('login') }}" class="btn-secondary px-6 py-3 text-base">J'ai déjà un compte</a>
                 </div>
-                <p class="mt-5 text-xs text-white/60">Accès réservé aux membres VIP : ton adhésion est vérifiée dès l'inscription.</p>
-            </div>
+                <p class="mt-5 text-xs text-gray-500">Accès réservé aux membres VIP : ton adhésion est vérifiée dès l'inscription.</p>
 
-            {{-- Illustration : aperçu de cartes de l'annuaire --}}
-            <div aria-hidden="true" class="relative mx-auto w-full max-w-md lg:max-w-none">
-                <div class="absolute top-8 -right-2 hidden w-64 rotate-6 rounded-card bg-white/10 p-5 ring-1 ring-white/15 backdrop-blur sm:block">
-                    <div class="flex items-center gap-3">
-                        <span class="grid size-12 place-items-center rounded-full bg-lime font-extrabold text-ink">MA</span>
-                        <div><p class="font-bold">Mariam A.</p><p class="text-xs text-white/70">Data analyst · Power BI</p></div>
-                    </div>
-                    <div class="mt-4 flex gap-1.5"><span class="badge bg-white/15 text-white">Senior</span><span class="badge bg-white/15 text-white">Ouvert à un emploi</span></div>
-                </div>
-                <div class="relative w-full max-w-sm -rotate-2 rounded-card bg-white p-6 text-gray-900 shadow-2xl shadow-black/40">
-                    <span class="badge absolute top-5 right-5 bg-brand text-lime">@svg('heroicon-s-star', 'size-3.5', ['aria-hidden' => 'true']) À la une</span>
-                    <div class="flex items-center gap-4">
-                        <span class="grid size-16 place-items-center rounded-full bg-linear-to-br from-violet to-brand text-xl font-extrabold text-lime">KD</span>
-                        <div>
-                            <p class="text-lg font-extrabold text-brand">Koffi D.</p>
-                            <p class="text-sm text-gray-600">Développeur Laravel et Vue.js</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-1.5">
-                        <span class="badge bg-violet/10 text-violet">Confirmé</span>
-                        <span class="badge bg-lime text-ink">Ouvert aux missions</span>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-1.5">
-                        @foreach (['Laravel', 'Vue.js', 'PostgreSQL'] as $demoSkill)
-                            <span class="rounded-lg bg-paper px-2.5 py-1 text-xs font-semibold text-brand ring-1 ring-line">{{ $demoSkill }}</span>
+                @if ($stats['members'] > 0)
+                    <dl class="mt-10 grid max-w-lg grid-cols-3 divide-x divide-line border-y border-line">
+                        @foreach ($statItems as [$statValue, $statLabel])
+                            <div class="flex flex-col-reverse gap-1 py-4 pl-4 first:pl-0">
+                                <dt class="text-xs text-gray-500 sm:text-sm">{{ $statLabel }}</dt>
+                                <dd class="text-2xl font-bold tracking-tight text-ink tabular-nums sm:text-3xl">{{ number_format($statValue, 0, ',', ' ') }}</dd>
+                            </div>
                         @endforeach
-                    </div>
-                    <div class="mt-5 flex items-center justify-between text-sm text-gray-500">
-                        <span class="inline-flex items-center gap-1">@svg('heroicon-m-map-pin', 'size-4 text-violet', ['aria-hidden' => 'true']) Cotonou</span><span class="inline-flex items-center gap-1 font-semibold text-violet">Voir le profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</span>
-                    </div>
+                    </dl>
+                @endif
+            </div>
+
+            <div class="relative mx-auto w-full max-w-md md:max-w-none">
+                <div aria-hidden="true" class="absolute -right-3 -bottom-3 hidden size-28 rounded-2xl bg-lime md:block"></div>
+                <div class="media-fallback relative aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-black/5">
+                    <img src="{{ $image('hero.jpg') }}" alt="Des membres de la communauté Bénin Codeurs au travail" width="1200" height="1500"
+                         fetchpriority="high" decoding="async" data-fallback class="size-full object-cover">
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
-    <main>
-        {{-- Comment ça marche --}}
-        <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="how">
-            <h2 id="how" class="text-center text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Comment ça marche</h2>
+    {{-- Comment ça marche --}}
+    <section id="comment-ca-marche" class="scroll-mt-16 border-t border-line bg-paper py-16 sm:py-24" aria-labelledby="how">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="max-w-2xl">
+                <p class="eyebrow">En trois étapes</p>
+                <h2 id="how" class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Comment ça marche</h2>
+            </div>
             <ol class="mt-10 grid gap-5 md:grid-cols-3">
-                @foreach ([
-                    ['Inscris-toi', "Ton e-mail d'adhésion VIP, le code reçu par e-mail, tes informations et ton mot de passe."],
-                    ['Remplis ton profil', 'Six étapes courtes, enregistrées au fur et à mesure : métier, niveau, compétences, réalisations, liens.'],
-                    ["Rejoins l'annuaire", "Dès que ton profil est complet, tu apparais dans l'annuaire des membres."],
-                ] as $i => [$stepTitle, $stepText])
-                    <li class="card relative">
-                        <span class="grid size-10 place-items-center rounded-full bg-lime text-lg font-extrabold text-ink">{{ $i + 1 }}</span>
-                        <h3 class="mt-4 text-lg font-bold text-brand">{{ $stepTitle }}</h3>
-                        <p class="mt-1 text-sm text-gray-600">{{ $stepText }}</p>
+                @foreach ($steps as $i => [$stepImage, $stepTitle, $stepText])
+                    <li class="flex flex-col overflow-hidden rounded-card border border-line bg-white">
+                        <div class="media-fallback relative aspect-[2/1]">
+                            <img src="{{ $image($stepImage) }}" alt="" width="1200" height="600" loading="lazy" decoding="async" data-fallback
+                                 class="absolute inset-0 size-full object-cover">
+                            <span class="absolute top-3 left-3 grid size-9 place-items-center rounded-full bg-lime text-sm font-bold text-ink shadow-md ring-4 ring-white/70">{{ $i + 1 }}</span>
+                        </div>
+                        <div class="p-5 sm:p-6">
+                            <h3 class="text-lg font-semibold text-ink">{{ $stepTitle }}</h3>
+                            <p class="mt-1.5 text-sm text-gray-600">{{ $stepText }}</p>
+                        </div>
                     </li>
                 @endforeach
             </ol>
-        </section>
+        </div>
+    </section>
 
-        {{-- Avantages --}}
-        <section class="bg-white py-16 sm:py-20" aria-labelledby="why">
-            <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                <h2 id="why" class="text-center text-2xl font-extrabold tracking-tight text-brand sm:text-3xl">Pensé pour la communauté</h2>
-                <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach ([
-                        ['magnifying-glass', 'Trouver vite', 'Recherche et filtres par métier, compétence, niveau, ville et disponibilité.'],
-                        ['puzzle-piece', 'Montrer son travail', "Jusqu'à 10 compétences avec ton niveau, et 3 réalisations avec image et lien."],
-                        ['users', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
-                        ['lock-closed', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
-                    ] as [$icon, $featureTitle, $featureText])
-                        <div class="rounded-card bg-paper p-6 ring-1 ring-line">
-                            <span class="grid size-11 place-items-center rounded-xl bg-brand text-lime" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-6')</span>
-                            <h3 class="mt-3 font-bold text-brand">{{ $featureTitle }}</h3>
+    {{-- Pensé pour la communauté --}}
+    <section id="communaute" class="scroll-mt-16 py-16 sm:py-24" aria-labelledby="why">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="max-w-2xl">
+                <p class="eyebrow">Pourquoi le Talent Board</p>
+                <h2 id="why" class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Pensé pour la communauté</h2>
+            </div>
+
+            {{-- Mobile et tablette : pile de cartes avec photo. --}}
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:hidden">
+                @foreach ($features as [$featureImage, $icon, $featureTitle, $featureText])
+                    <article class="overflow-hidden rounded-card border border-line bg-white">
+                        <div class="media-fallback aspect-[4/3]">
+                            <img src="{{ $image($featureImage) }}" alt="" width="1200" height="900" loading="lazy" decoding="async" data-fallback class="size-full object-cover">
+                        </div>
+                        <div class="p-5">
+                            <span class="grid size-9 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-5')</span>
+                            <h3 class="mt-3 font-semibold text-ink">{{ $featureTitle }}</h3>
                             <p class="mt-1 text-sm text-gray-600">{{ $featureText }}</p>
                         </div>
-                    @endforeach
+                    </article>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Ordinateur : défilement narratif. La zone fait 4 hauteurs d'écran, le contenu reste collé en haut. --}}
+        <div data-story class="relative hidden lg:block lg:h-[320vh]">
+            <div class="sticky top-16 flex h-[calc(100dvh-4rem)] items-center">
+                <div class="mx-auto grid w-full max-w-6xl grid-cols-[1fr_1.15fr] items-center gap-16 px-6">
+                    <ol class="space-y-2">
+                        @foreach ($features as $i => [$featureImage, $icon, $featureTitle, $featureText])
+                            <li data-story-step @class(['story-step border-l-2 border-line py-4 pr-4 pl-6', 'is-active' => $i === 0])>
+                                <div class="flex items-center gap-3">
+                                    <span class="grid size-9 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-5')</span>
+                                    <h3 class="text-lg font-semibold text-ink">{{ $featureTitle }}</h3>
+                                </div>
+                                <p class="mt-2 text-gray-600">{{ $featureText }}</p>
+                            </li>
+                        @endforeach
+                    </ol>
+
+                    <div class="media-fallback relative aspect-[4/3] overflow-hidden rounded-3xl ring-1 ring-black/5">
+                        @foreach ($features as $i => [$featureImage, $icon, $featureTitle])
+                            <img data-story-photo src="{{ $image($featureImage) }}" alt="{{ $featureTitle }}" width="1200" height="900" loading="lazy" decoding="async" data-fallback
+                                 @class(['story-photo absolute inset-0 size-full object-cover', 'is-active' => $i === 0])>
+                        @endforeach
+                        <span aria-hidden="true" class="absolute right-4 bottom-4 h-1.5 w-16 rounded-full bg-lime"></span>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        {{-- Appel final --}}
-        <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-            <div class="relative overflow-hidden rounded-card bg-brand px-6 py-10 text-center text-white sm:px-12 sm:py-14">
-                <div aria-hidden="true" class="pointer-events-none absolute -top-16 -left-10 size-56 rounded-full bg-violet/60 blur-3xl"></div>
-                <div aria-hidden="true" class="pointer-events-none absolute -right-10 -bottom-16 size-56 rounded-full bg-lime/20 blur-3xl"></div>
-                <h2 class="relative text-2xl font-extrabold tracking-tight sm:text-3xl">Prêt à rejoindre l'annuaire ?</h2>
-                <p class="relative mx-auto mt-2 max-w-xl text-white/80">Crée ton compte en une minute, puis complète ton profil à ton rythme.</p>
-                <div class="relative mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                    <a href="{{ route('register') }}" class="btn-primary">Créer mon compte</a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">Se connecter</a>
-                </div>
+            {{-- Repères invisibles : chacun active une étape quand il passe au milieu de l'écran. --}}
+            <div aria-hidden="true" class="pointer-events-none absolute inset-0 flex flex-col">
+                @foreach ($features as $feature)
+                    <div data-story-trigger class="flex-1"></div>
+                @endforeach
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
-    <footer class="border-t border-line py-8 text-center text-xs text-gray-500">
-        © {{ now()->year }} Bénin Codeurs · Talent Board de la communauté VIP
-    </footer>
-</body>
-</html>
+    {{-- Appel final --}}
+    <section class="px-4 pb-16 sm:px-6 sm:pb-24">
+        <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-night px-6 py-16 text-center text-white sm:px-12 sm:py-24">
+            <img src="{{ $image('cta.jpg') }}" alt="" width="1200" height="514" loading="lazy" decoding="async" data-fallback
+                 class="absolute inset-0 -z-20 size-full object-cover">
+            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-t from-night/95 via-night/80 to-night/60"></div>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Prêt à rejoindre l'annuaire ?</h2>
+            <p class="mx-auto mt-3 max-w-xl text-white/80">Crée ton compte en une minute, puis complète ton profil à ton rythme.</p>
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-lime px-6 py-3 font-semibold text-ink transition hover:bg-lime-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-lime/40">Créer mon compte</a>
+                <a href="{{ route('login') }}" class="btn-ghost-light px-6 py-3">Se connecter</a>
+            </div>
+        </div>
+    </section>
+</x-layouts::public>

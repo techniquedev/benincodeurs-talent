@@ -1,5 +1,5 @@
 <div class="card">
-    <h1 class="text-2xl font-extrabold tracking-tight text-brand">Nouveau mot de passe</h1>
+    <h1 class="text-2xl font-semibold tracking-tight text-ink">Nouveau mot de passe</h1>
     <p class="mt-1 text-sm text-gray-600">Choisis ton nouveau mot de passe.</p>
 
     <form wire:submit="resetPassword" class="mt-6 space-y-4" novalidate>

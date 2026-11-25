@@ -32,4 +32,17 @@ return [
     // Nombre de profils par page dans l'annuaire.
     'directory_per_page' => 12,
 
+    // Pied de page : aide WhatsApp (lien wa.me ou groupe) et réseaux sociaux. Vide : lien masqué.
+    'support_whatsapp_url' => env('TALENT_SUPPORT_WHATSAPP_URL'),
+    'social' => [
+        'linkedin' => env('TALENT_SOCIAL_LINKEDIN'),
+        'facebook' => env('TALENT_SOCIAL_FACEBOOK'),
+        'instagram' => env('TALENT_SOCIAL_INSTAGRAM'),
+        'youtube' => env('TALENT_SOCIAL_YOUTUBE'),
+        'x' => env('TALENT_SOCIAL_X'),
+    ],
+
+    // Chiffres de l'accueil : durée du cache, en secondes.
+    'home_stats_ttl' => 600,
+
 ];

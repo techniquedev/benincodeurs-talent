@@ -11,6 +11,8 @@ use App\Livewire\Profile\EditProfile;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AccountController::class, 'home'])->name('home');
+Route::view('/confidentialite', 'legal.privacy')->name('legal.privacy');
+Route::view('/conditions', 'legal.terms')->name('legal.terms');
 
 // Invités
 Route::middleware('guest')->group(function () {
