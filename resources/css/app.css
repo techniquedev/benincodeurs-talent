@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../../app/Livewire/**/*.php';
+
+/* Charte Bénin Codeurs : violet foncé, vert-jaune #D4F01F, coins arrondis. */
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    --color-night: #1a0035;      /* fond sombre principal */
+    --color-brand: #280050;      /* violet Bénin Codeurs */
+    --color-violet: #6d2399;     /* violet d'accent */
+    --color-lime: #D4F01F;       /* vert-jaune, boutons d'action */
+    --color-lime-hover: #c2dd10;
+    --color-ink: #111111;        /* texte sur vert-jaune */
+    --color-paper: #f7f5fa;      /* fond clair légèrement violet */
+    --color-line: #e4dff0;
+
+    --radius-card: 1.25rem;
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex w-full items-center justify-center gap-2 rounded-full bg-lime px-6 py-3 font-semibold text-ink transition hover:bg-lime-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-lime/40 disabled:opacity-60 sm:w-auto;
+    }
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-full border border-brand/20 px-5 py-2.5 font-semibold text-brand transition hover:bg-brand/5 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20;
+    }
+    .card {
+        @apply rounded-card bg-white p-6 shadow-xl shadow-night/10 sm:p-8;
+    }
+    .field-label {
+        @apply mb-1.5 block text-sm font-semibold text-brand;
+    }
+    .field-input {
+        @apply block w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-violet focus:outline-none focus:ring-4 focus:ring-violet/15;
+    }
+    .field-error {
+        @apply mt-1.5 text-sm text-red-700;
+    }
+    .link {
+        @apply font-semibold text-violet underline-offset-4 hover:underline;
+    }
+    .alert {
+        @apply rounded-xl border border-lime/60 bg-lime/15 px-4 py-3 text-sm text-brand;
+    }
+}

@@ -1,0 +1,84 @@
+# Blueprint Render : service web Docker + base PostgreSQL.
+# Les valeurs « sync: false » sont demandées par Render à la création du Blueprint
+# (ou à saisir ensuite dans Environment). Aucun secret dans ce fichier.
+
+databases:
+  - name: talent-db
+    databaseName: talent
+    user: talent
+    plan: free          # Attention : la base gratuite expire au bout de 30 jours. Passer en offre payante pour la production.
+    region: frankfurt
+
+services:
+  - type: web
+    name: talent-board
+    runtime: docker
+    plan: free          # L'offre gratuite se met en veille après 15 min d'inactivité.
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /up
+    autoDeploy: true
+    envVars:
+      # Application
+      - key: APP_NAME
+        value: Talent Board
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false        # sortie de « php artisan key:generate --show »
+      - key: APP_URL
+        sync: false        # ex. https://talent-board.onrender.com (sinon RENDER_EXTERNAL_URL est utilisé)
+      - key: APP_LOCALE
+        value: fr
+      - key: APP_TIMEZONE
+        value: Africa/Porto-Novo
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: warning
+
+      # Base de données (fournie par Render)
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: talent-db
+          property: connectionString
+
+      # Sessions, cache, files d'attente
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # Fichiers : Cloudinary (obligatoire en production)
+      - key: CLOUDINARY_URL
+        sync: false        # cloudinary://<api_key>:<api_secret>@<cloud_name>
+      - key: CLOUDINARY_FOLDER
+        value: talent
+
+      # E-mails : API HTTP (Render peut bloquer le SMTP)
+      - key: MAIL_MAILER
+        sync: false        # brevo, resend ou smtp
+      - key: BREVO_API_KEY
+        sync: false        # si MAIL_MAILER=brevo
+      - key: RESEND_API_KEY
+        sync: false        # si MAIL_MAILER=resend
+      - key: MAIL_FROM_ADDRESS
+        sync: false        # adresse d'un domaine validé chez Brevo ou Resend
+      - key: MAIL_FROM_NAME
+        value: Bénin Codeurs
+
+      # Premier administrateur (créé au démarrage s'il n'existe pas)
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false        # 12 caractères minimum
