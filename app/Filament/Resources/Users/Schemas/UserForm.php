@@ -75,7 +75,7 @@ class UserForm
                     ->state(fn (User $record) => ($profile($record)?->completion ?? 0).' %')
                     ->badge()
                     ->color(fn (User $record) => ($profile($record)?->completion ?? 0) >= Profile::minCompletion() ? 'success' : 'warning')
-                    ->helperText(fn (User $record) => $profile($record)?->isListed() ? "Visible dans l'annuaire." : "Pas encore visible dans l'annuaire."),
+                    ->helperText(fn (User $record) => $profile($record)?->isListed() ? "Dans l'annuaire de l'équipe." : "Pas encore dans l'annuaire (profil incomplet ou compte non validé)."),
                 TextEntry::make('profile_featured')->label('À la une')
                     ->state(fn (User $record) => $profile($record)?->is_featured ? 'Oui, depuis le '.$profile($record)->featured_at?->format('d/m/Y') : 'Non'),
                 TextEntry::make('profile_headline')->label('Titre')->state(fn (User $record) => $profile($record)?->headline)->placeholder('—'),
@@ -87,15 +87,9 @@ class UserForm
                 TextEntry::make('profile_situation')->label('Situation')
                     ->state(fn (User $record) => collect([
                         $profile($record)?->work_status?->label(),
-                        $profile($record)?->company ? $profile($record)->company.($profile($record)->company_visible ? '' : ' (masquée)') : null,
+                        $profile($record)?->company,
                     ])->filter()->join(' · '))
                     ->placeholder('—'),
-                TextEntry::make('profile_contact')->label('Contact visible')
-                    ->state(fn (User $record) => collect([
-                        $profile($record)?->whatsapp_visible ? 'WhatsApp' : null,
-                        $profile($record)?->email_visible ? 'E-mail' : null,
-                    ])->filter()->join(', '))
-                    ->placeholder('Masqué'),
                 TextEntry::make('profile_bio')->label('Présentation')
                     ->state(fn (User $record) => $profile($record)?->bio)
                     ->placeholder('—')->columnSpanFull(),

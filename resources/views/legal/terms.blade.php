@@ -12,8 +12,8 @@
                 <p class="mt-2">Tu es responsable des informations que tu publies : elles doivent être exactes et t'appartenir (textes, images de réalisations, liens).</p>
             </section>
             <section>
-                <h2>Respect des membres</h2>
-                <p class="mt-2">Les coordonnées affichées dans l'annuaire servent à collaborer entre membres. Elles ne doivent pas être collectées, revendues ni utilisées pour de la prospection en masse.</p>
+                <h2>Utilisation des profils</h2>
+                <p class="mt-2">Les profils ne sont consultés que par l'équipe Bénin Codeurs, qui s'en sert pour proposer des missions et des opportunités aux membres. Créer un profil ne garantit aucune mission. Les profils ne sont ni revendus ni communiqués en masse.</p>
             </section>
             <section>
                 <h2>Évolution</h2>

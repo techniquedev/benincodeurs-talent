@@ -23,7 +23,12 @@ class CreateAdmin extends Command
             return self::SUCCESS;
         }
 
-        if (User::where('email', $email)->exists()) {
+        if ($existing = User::where('email', $email)->first()) {
+            // Le compte principal reste toujours administrateur (super-admin), même s'il a été modifié en base.
+            if (! $existing->is_admin || $existing->isSuspended()) {
+                $existing->forceFill(['is_admin' => true, 'status' => UserStatus::Approved, 'suspended_at' => null])->save();
+            }
+
             $this->info("L'administrateur {$email} existe déjà : rien à faire.");
 
             return self::SUCCESS;

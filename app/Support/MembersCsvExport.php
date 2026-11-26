@@ -43,7 +43,7 @@ class MembersCsvExport
             'ID', 'Prénom', 'Nom', 'E-mail', 'WhatsApp', 'Statut', 'E-mail vérifié', 'Inscrit le', 'Validé le',
             'Ville', 'Titre', 'Métier', 'Niveau', "Années d'expérience", 'Situation', 'Entreprise', 'Disponibilité',
             'Compétences', 'Compétences mises en avant', 'Réalisations', 'LinkedIn', 'GitHub', 'Portfolio', 'Behance',
-            'WhatsApp visible', 'E-mail visible', 'Complétion (%)', "Dans l'annuaire", 'Mis en avant',
+            'Complétion (%)', "Dans l'annuaire", 'Mis en avant',
         ];
     }
 
@@ -80,8 +80,6 @@ class MembersCsvExport
             $profile?->github_url,
             $profile?->portfolio_url,
             $profile?->behance_url,
-            $yesNo($profile?->whatsapp_visible),
-            $yesNo($profile?->email_visible),
             $profile?->completion ?? 0,
             $yesNo($profile?->isListed()),
             $yesNo($profile?->is_featured),

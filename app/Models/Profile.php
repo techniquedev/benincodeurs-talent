@@ -16,8 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
 /**
- * Profil d'un membre (un par compte). Rempli en 6 étapes ; entre dans l'annuaire
- * quand le compte est validé et que la complétion atteint config('talent.directory_min_completion').
+ * Profil d'un membre (un par compte). Rempli en 6 étapes ; vu uniquement par l'équipe Bénin Codeurs.
+ * Il entre dans l'annuaire de l'équipe quand le compte est validé et que la complétion atteint
+ * config('talent.directory_min_completion').
  */
 class Profile extends Model
 {
@@ -42,9 +43,6 @@ class Profile extends Model
     protected $guarded = ['id', 'user_id', 'is_featured', 'featured_at', 'completion', 'is_public'];
 
     protected $attributes = [
-        'company_visible' => true,
-        'whatsapp_visible' => false,
-        'email_visible' => false,
         'is_public' => false,
         'is_featured' => false,
         'completion' => 0,
@@ -58,9 +56,6 @@ class Profile extends Model
             'work_status' => WorkStatus::class,
             'availability' => Availability::class,
             'years_experience' => 'integer',
-            'company_visible' => 'boolean',
-            'whatsapp_visible' => 'boolean',
-            'email_visible' => 'boolean',
             'is_public' => 'boolean',
             'is_featured' => 'boolean',
             'featured_at' => 'datetime',

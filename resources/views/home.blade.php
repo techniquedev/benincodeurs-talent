@@ -2,23 +2,23 @@
     $steps = [
         ['etape-1.jpg', 'Inscris-toi', "Ton e-mail d'adhésion VIP, le code reçu par e-mail, tes informations et ton mot de passe."],
         ['etape-2.jpg', 'Remplis ton profil', 'Six étapes courtes, enregistrées au fur et à mesure : métier, niveau, compétences, réalisations, liens.'],
-        ['etape-3.jpg', "Rejoins l'annuaire", "Dès que ton profil est complet, tu apparais dans l'annuaire des membres."],
+        ['etape-3.jpg', 'Fais-toi connaître', "Une fois ton profil complet, l'équipe Bénin Codeurs peut le consulter pour te proposer des missions et des opportunités."],
     ];
     $features = [
-        ['feature-1.jpg', 'magnifying-glass', 'Trouver vite', 'Recherche et filtres par métier, compétence, niveau, ville et disponibilité : la bonne personne en quelques secondes.'],
-        ['feature-2.jpg', 'puzzle-piece', 'Montrer son travail', "Jusqu'à 10 compétences avec ton niveau, et 3 réalisations avec image et lien."],
-        ['feature-3.jpg', 'users', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
-        ['feature-4.jpg', 'lock-closed', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
+        ['feature-1.jpg', 'identification', 'Te faire connaître', "Métier, niveau, compétences et réalisations au même endroit : l'équipe Bénin Codeurs sait ce que tu sais faire."],
+        ['feature-2.jpg', 'puzzle-piece', 'Montrer ton travail', "Jusqu'à 10 compétences avec ton niveau, dont 3 mises en avant, et 3 réalisations avec image et lien."],
+        ['feature-3.jpg', 'briefcase', 'Être contacté au bon moment', "Quand une mission ou une opportunité correspond à ton profil, l'équipe peut te la proposer. Rien n'est garanti : plus ton profil est précis, plus il est utile."],
+        ['feature-4.jpg', 'lock-closed', "Vu par l'équipe seulement", "Ton profil n'est ni public ni visible par les autres membres : seule l'équipe Bénin Codeurs le consulte."],
     ];
     $faq = [
         ['Qui peut accéder au Talent Board ?', "Les membres de la communauté VIP Bénin Codeurs. À l'inscription, ton e-mail d'adhésion est vérifié automatiquement, puis tu confirmes ton adresse avec un code. L'inscription est gratuite."],
-        ['Qui voit mes coordonnées ?', "Seuls les membres connectés et validés voient l'annuaire. Ton WhatsApp, ton e-mail et ton entreprise ne s'affichent que si tu choisis de les montrer, et tu peux changer d'avis à tout moment."],
+        ['Qui voit mon profil ?', "Uniquement l'équipe Bénin Codeurs. Ton profil, tes coordonnées et ton entreprise ne sont ni publics ni visibles par les autres membres. L'équipe s'en sert pour te proposer, quand ton profil correspond, des missions ou des opportunités."],
         ['Comment modifier mon profil ?', "Connecte-toi, puis ouvre « Mon profil » depuis ton espace. Chaque étape est enregistrée au fur et à mesure : tu peux revenir compléter ou corriger tes informations quand tu veux."],
         ['Comment supprimer mon compte ?', "Écris à l'équipe Bénin Codeurs sur WhatsApp. Ton compte, ton profil, tes réalisations et tes images sont alors supprimés définitivement."],
     ];
     $image = fn (string $file): string => asset('images/home/'.$file);
 @endphp
-<x-layouts::public :overlay-header="true" description="Le Talent Board réunit les membres de la communauté VIP Bénin Codeurs : profils, compétences, réalisations et annuaire.">
+<x-layouts::public :overlay-header="true" description="Le Talent Board de la communauté VIP Bénin Codeurs : ton profil, tes compétences et tes réalisations, pour te faire connaître de l'équipe.">
     {{-- Héros : sombre, la barre de navigation est posée dessus (transparente). --}}
     <section class="relative isolate overflow-hidden bg-linear-to-br from-night to-brand text-white">
         <div aria-hidden="true" class="glow pointer-events-none absolute inset-0 -z-10"></div>
@@ -29,11 +29,11 @@
                     Communauté VIP Bénin Codeurs
                 </p>
                 <h1 class="mt-5 text-4xl leading-[1.08] font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-                    Les talents de la communauté, <span class="text-lime">réunis au même endroit.</span>
+                    Fais connaître tes talents <span class="text-lime">à l'équipe Bénin Codeurs.</span>
                 </h1>
                 <p class="mt-5 max-w-xl text-base text-white/80 sm:text-lg">
-                    Développeurs, designers, experts data et IA, chefs de projet, marketeurs : crée ton profil, montre tes réalisations
-                    et trouve les bonnes personnes pour collaborer, recruter ou te lancer en mission.
+                    Développeurs, designers, experts data et IA, chefs de projet, marketeurs : crée ton profil, montre tes compétences
+                    et tes réalisations. L'équipe s'en sert pour proposer des missions et des opportunités aux membres de la communauté.
                 </p>
                 <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                     <a href="{{ route('register') }}" class="btn-lime px-6 py-3 text-base">Créer mon profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</a>
@@ -185,7 +185,7 @@
             <img src="{{ $image('cta.jpg') }}" alt="" width="1200" height="514" loading="lazy" decoding="async" data-fallback
                  class="absolute inset-0 -z-20 size-full object-cover">
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-br from-night/85 to-brand/85"></div>
-            <h2 class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">Prêt à rejoindre l'annuaire ?</h2>
+            <h2 class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">Prêt à te faire connaître ?</h2>
             <p class="mx-auto mt-3 max-w-xl text-white/85">Crée ton compte en une minute, puis complète ton profil à ton rythme.</p>
             <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <a href="{{ route('register') }}" class="btn-lime px-6 py-3">Créer mon compte</a>

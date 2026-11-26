@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Enums\UserStatus;
 use App\Models\Profile;
+use App\Support\Permissions;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -18,6 +19,11 @@ abstract class ProfileBreakdownChart extends ChartWidget
     protected ?string $maxHeight = '260px';
 
     protected ?string $description = 'Membres validés ayant renseigné ce champ.';
+
+    public static function canView(): bool
+    {
+        return Permissions::allows('members', 'view');
+    }
 
     abstract protected function column(): string;
 

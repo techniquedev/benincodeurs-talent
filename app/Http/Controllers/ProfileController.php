@@ -8,16 +8,10 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /** Fiche d'un membre dans l'annuaire (réservée aux membres validés). */
+    /** Fiche d'un membre dans l'annuaire, réservée à l'équipe (permission « directory.view », voir routes). */
     public function show(Request $request, Profile $profile): View
     {
-        $viewer = $request->user();
-        $isOwner = $profile->user_id === $viewer->id;
-
-        // Un profil non visible dans l'annuaire n'existe pas pour les autres membres.
-        abort_unless($profile->isListed() || $isOwner || $viewer->is_admin, 404);
-
-        return $this->render($profile, $isOwner);
+        return $this->render($profile, $profile->user_id === $request->user()->id);
     }
 
     /** Aperçu de son propre profil, possible même avant la validation du compte. */

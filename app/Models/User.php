@@ -18,13 +18,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['first_name', 'last_name', 'email', 'whatsapp', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, HasName, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $attributes = [
         'status' => 'approved',
@@ -68,6 +69,14 @@ class User extends Authenticatable implements FilamentUser, HasName, MustVerifyE
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->is_admin && $this->status !== UserStatus::Suspended;
+    }
+
+    /** Compte admin principal (ADMIN_EMAIL) : tous les droits, jamais supprimable ni rétrogradable. */
+    public function isSuperAdmin(): bool
+    {
+        $superAdminEmail = strtolower(trim((string) config('talent.admin.email')));
+
+        return $this->is_admin && $superAdminEmail !== '' && strtolower($this->email) === $superAdminEmail;
     }
 
     public function isPending(): bool

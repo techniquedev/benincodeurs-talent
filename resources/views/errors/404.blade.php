@@ -1,1 +1,1 @@
-@include('errors.layout', ['code' => 404, 'title' => 'Page introuvable', 'message' => "Cette page n'existe pas, ou le profil que tu cherches n'est plus visible dans l'annuaire.", 'links' => [['Mon espace', '/espace'], ['Accueil', '/']]])
+@include('errors.layout', ['code' => 404, 'title' => 'Page introuvable', 'message' => "Cette page n'existe pas ou a été déplacée.", 'links' => [['Mon espace', '/espace'], ['Accueil', '/']]])

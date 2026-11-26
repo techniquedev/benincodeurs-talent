@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Skills;
 
+use App\Filament\Concerns\AuthorizesBySection;
 use App\Filament\Resources\Skills\Pages\ManageSkills;
 use App\Models\Skill;
 use App\Models\SkillCategory;
@@ -25,6 +26,8 @@ use UnitEnum;
 
 class SkillResource extends Resource
 {
+    use AuthorizesBySection;
+
     protected static ?string $model = Skill::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
@@ -40,6 +43,11 @@ class SkillResource extends Resource
     protected static ?string $navigationLabel = 'Compétences';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function permissionSection(): string
+    {
+        return 'skills';
+    }
 
     public static function form(Schema $schema): Schema
     {

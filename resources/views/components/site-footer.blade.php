@@ -12,7 +12,7 @@
             <div class="sm:col-span-2 lg:col-span-1">
                 <x-logo />
                 <p class="mt-4 max-w-xs text-sm text-white/70">
-                    L'annuaire des talents de la communauté VIP Bénin Codeurs : se faire connaître, se trouver, travailler ensemble.
+                    Le Talent Board de la communauté VIP Bénin Codeurs : ton profil pour te faire connaître de l'équipe.
                 </p>
                 @if ($activeSocialNetworks->isNotEmpty())
                     <ul class="mt-5 flex items-center gap-2" aria-label="Réseaux sociaux de Bénin Codeurs">
@@ -35,7 +35,7 @@
                     @auth
                         <li><a href="{{ route('dashboard') }}" class="{{ $columnLink }}">Mon espace</a></li>
                         <li><a href="{{ route('profile.edit') }}" class="{{ $columnLink }}">Mon profil</a></li>
-                        @if (auth()->user()->isApproved() || auth()->user()->is_admin)
+                        @if (auth()->user()->can('directory.view'))
                             <li><a href="{{ route('directory') }}" class="{{ $columnLink }}">Annuaire</a></li>
                         @endif
                     @else

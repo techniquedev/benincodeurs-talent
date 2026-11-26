@@ -9,11 +9,11 @@
             </section>
             <section>
                 <h2>Qui peut les voir</h2>
-                <p class="mt-2">L'annuaire est réservé aux membres connectés dont le compte est validé. Tu choisis d'afficher ou de masquer ton WhatsApp, ton e-mail et ton entreprise : les éléments masqués ne sont visibles que par toi et par l'équipe Bénin Codeurs.</p>
+                <p class="mt-2">Ton profil et tes coordonnées ne sont visibles que par toi et par l'équipe Bénin Codeurs. Ils ne sont ni publics ni accessibles aux autres membres.</p>
             </section>
             <section>
                 <h2>Pourquoi</h2>
-                <p class="mt-2">Ces informations servent uniquement à faire fonctionner le Talent Board : vérifier ton adhésion VIP, afficher ton profil aux autres membres et te contacter au sujet de ton compte.</p>
+                <p class="mt-2">Ces informations servent uniquement à faire fonctionner le Talent Board : vérifier ton adhésion VIP, faire connaître ton profil à l'équipe Bénin Codeurs pour qu'elle puisse te proposer des missions ou des opportunités (sans garantie), et te contacter au sujet de ton compte.</p>
             </section>
             <section>
                 <h2>Tes droits</h2>

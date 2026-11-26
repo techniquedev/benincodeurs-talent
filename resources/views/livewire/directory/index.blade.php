@@ -8,7 +8,7 @@
 
 <div x-data="{ filtersOpen: false }" x-effect="document.documentElement.classList.toggle('overflow-hidden', filtersOpen)"
      x-on:keydown.escape.window="filtersOpen = false" x-on:livewire:navigating.window="filtersOpen = false">
-    <x-page-header title="Annuaire des talents" description="Trouve un membre de la communauté VIP Bénin Codeurs par métier, compétence, niveau ou ville.">
+    <x-page-header title="Annuaire des talents" description="Réservé à l'équipe Bénin Codeurs : trouve un membre par métier, compétence, niveau ou ville pour lui proposer une mission ou une opportunité.">
     <div class="mt-6 flex gap-2">
         <div class="relative flex-1">
             <label for="directory-search" class="sr-only">Rechercher</label>

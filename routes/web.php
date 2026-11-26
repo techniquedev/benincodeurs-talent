@@ -40,8 +40,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/profil', EditProfile::class)->name('profile.edit');
         Route::get('/profil/apercu', [ProfileController::class, 'preview'])->name('profile.preview');
 
-        // Réservé aux comptes validés.
-        Route::middleware('approved')->group(function () {
+        // Annuaire : réservé à l'équipe Bénin Codeurs (permission « directory.view »), plus aux membres.
+        Route::middleware('can:directory.view')->group(function () {
             Route::get('/annuaire', Directory::class)->name('directory');
             Route::get('/annuaire/{profile}', [ProfileController::class, 'show'])->whereNumber('profile')->name('directory.show');
         });

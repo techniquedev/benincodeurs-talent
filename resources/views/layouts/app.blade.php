@@ -5,7 +5,7 @@
 </head>
 @php
     $currentUser = auth()->user();
-    $canBrowse = $currentUser->isApproved() || $currentUser->is_admin;
+    $canBrowse = $currentUser->can('directory.view'); // Annuaire : équipe Bénin Codeurs uniquement.
     $navItems = array_filter([
         ['route' => 'dashboard', 'label' => 'Mon espace', 'icon' => 'home', 'active' => request()->routeIs('dashboard', 'account.pending')],
         ['route' => 'profile.edit', 'label' => 'Mon profil', 'icon' => 'user-circle', 'active' => request()->routeIs('profile.*')],

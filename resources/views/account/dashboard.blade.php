@@ -1,7 +1,6 @@
 @use('App\Models\Profile')
 @php
     $minCompletion = Profile::minCompletion();
-    $canBrowse = $user->isApproved() || $user->is_admin;
     $missing = collect($profile->completionChecklist())->where('done', false)->take(4);
 @endphp
 <x-layouts::app title="Mon espace">
@@ -19,14 +18,12 @@
                     <x-completion-ring :value="$profile->completion" :threshold="$minCompletion" class="size-24 sm:size-28" />
                     <div class="min-w-0">
                         <h2 class="section-title">Mon profil</h2>
-                        @if ($profile->isListed())
-                            <p class="mt-1 text-sm text-muted">Ton profil est visible dans l'annuaire. Garde-le à jour : c'est ta vitrine auprès de la communauté.</p>
-                        @elseif ($profile->completion >= $minCompletion)
-                            <p class="mt-1 text-sm text-muted">Ton profil est prêt. Il apparaîtra dans l'annuaire dès que ton compte sera validé.</p>
+                        @if ($profile->completion >= $minCompletion)
+                            <p class="mt-1 text-sm text-muted">Ton profil est complet. L'équipe Bénin Codeurs le consulte quand elle cherche des compétences pour une mission ou une opportunité : garde-le à jour.</p>
                         @elseif ($profile->completion === 0)
                             <p class="mt-1 text-sm text-muted">Remplis ton profil en 6 étapes courtes. Chaque étape est enregistrée : tu peux t'arrêter et reprendre plus tard.</p>
                         @else
-                            <p class="mt-1 text-sm text-muted">Encore {{ $minCompletion - $profile->completion }}&nbsp;% pour apparaître dans l'annuaire ({{ $minCompletion }}&nbsp;% minimum).</p>
+                            <p class="mt-1 text-sm text-muted">Encore {{ $minCompletion - $profile->completion }}&nbsp;% pour un profil complet ({{ $minCompletion }}&nbsp;% minimum). Plus il est précis, mieux l'équipe connaît tes compétences.</p>
                         @endif
                     </div>
                 </div>
@@ -53,14 +50,14 @@
             </section>
 
             <div class="space-y-6">
-                @if ($canBrowse)
-                    <section class="card relative overflow-hidden">
-                        <span class="grid size-10 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-users', 'size-5')</span>
-                        <h2 class="section-title mt-4">L'annuaire des talents</h2>
-                        <p class="mt-1 text-sm text-muted">Trouve un développeur, un designer ou un expert data de la communauté.</p>
-                        <a href="{{ route('directory') }}" class="btn-primary mt-5 w-full sm:w-full">Explorer l'annuaire @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</a>
-                    </section>
-                @endif
+                <section class="card">
+                    <span class="grid size-10 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-light-bulb', 'size-5')</span>
+                    <h2 class="section-title mt-4">À quoi sert ton profil ?</h2>
+                    <p class="mt-1 text-sm text-muted">
+                        Il te fait connaître de l'équipe Bénin Codeurs. Ton profil n'est visible que par l'équipe, qui s'en sert
+                        pour proposer des missions et des opportunités aux membres dont les compétences correspondent.
+                    </p>
+                </section>
 
                 <section class="card">
                     <h2 class="section-title">Mon compte</h2>

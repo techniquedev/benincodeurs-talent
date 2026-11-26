@@ -9,6 +9,7 @@ use App\Enums\SkillLevel;
 use App\Enums\WorkStatus;
 use App\Models\Profile;
 use App\Models\Project;
+use App\Models\Skill;
 use App\Models\SkillCategory;
 use App\Support\Media;
 use Illuminate\Support\Collection;
@@ -33,6 +34,8 @@ use Livewire\WithFileUploads;
 class EditProfile extends Component
 {
     use WithFileUploads;
+
+    private const SUGGESTION_COUNT = 8;
 
     private const IMAGE_RULES = ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'];
 
@@ -65,8 +68,6 @@ class EditProfile extends Component
 
     public string $company = '';
 
-    public bool $company_visible = true;
-
     public string $availability = '';
 
     // 5. Réalisations : liste de ['key', 'id', 'title', 'description', 'url', 'image_path']
@@ -84,10 +85,6 @@ class EditProfile extends Component
     public string $portfolio_url = '';
 
     public string $behance_url = '';
-
-    public bool $whatsapp_visible = false;
-
-    public bool $email_visible = false;
 
     public function mount(): void
     {
@@ -109,6 +106,50 @@ class EditProfile extends Component
             ->filter(fn (SkillCategory $category) => $category->skills->isNotEmpty())->values();
     }
 
+    /**
+     * Toutes les compétences, pour la recherche avec suggestions (filtrée côté navigateur).
+     *
+     * @return list<array{id: int, name: string, category: string}>
+     */
+    #[Computed]
+    public function skillCatalog(): array
+    {
+        return $this->categories
+            ->flatMap(fn (SkillCategory $category) => $category->skills->map(fn (Skill $skill) => [
+                'id' => $skill->id,
+                'name' => $skill->name,
+                'category' => $category->name,
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * 8 compétences suggérées selon le métier choisi (étape 2), sinon les plus choisies par les membres.
+     *
+     * @return Collection<int, Skill>
+     */
+    #[Computed]
+    public function suggestedSkills(): Collection
+    {
+        $allSkills = $this->categories->flatMap->skills;
+        $profession = Profession::tryFrom($this->profession);
+
+        $suggested = $profession
+            ? collect($profession->suggestedSkillNames())
+                ->map(fn (string $name) => $allSkills->first(fn (Skill $skill) => mb_strtolower($skill->name) === mb_strtolower($name)))
+                ->filter()
+            : collect();
+
+        if ($suggested->count() < self::SUGGESTION_COUNT) {
+            $popularIds = Skill::query()->withCount('profiles')->orderByDesc('profiles_count')->orderBy('name')
+                ->limit(self::SUGGESTION_COUNT * 2)->pluck('id');
+            $suggested = $suggested->concat($popularIds->map(fn (int $id) => $allSkills->firstWhere('id', $id))->filter());
+        }
+
+        return $suggested->unique('id')->take(self::SUGGESTION_COUNT)->values();
+    }
+
     /** @return list<array{label: string, step: int, weight: int, done: bool}> */
     #[Computed]
     public function checklist(): array
@@ -128,7 +169,7 @@ class EditProfile extends Component
             return;
         }
 
-        session()->flash('status', 'Ton profil est enregistré. Voici comment les autres membres le voient.');
+        session()->flash('status', "Ton profil est enregistré. Voici ton profil tel que le voit l'équipe Bénin Codeurs.");
         $this->redirectRoute('profile.preview');
     }
 
@@ -229,15 +270,9 @@ class EditProfile extends Component
         ])->save();
     }
 
-    public function toggleSkill(int $skillId): void
+    public function addSkill(int $skillId): void
     {
-        $index = $this->skillIndex($skillId);
-
-        if ($index !== null) {
-            unset($this->skills[$index]);
-            $this->skills = array_values($this->skills);
-            $this->resetErrorBag('skills');
-
+        if ($this->skillIndex($skillId) !== null || ! $this->categories->flatMap->skills->contains('id', $skillId)) {
             return;
         }
 
@@ -249,6 +284,42 @@ class EditProfile extends Component
 
         $this->skills[] = ['id' => $skillId, 'level' => SkillLevel::Intermediate->value, 'highlighted' => false];
         $this->resetErrorBag('skills');
+    }
+
+    public function removeSkill(int $skillId): void
+    {
+        $index = $this->skillIndex($skillId);
+
+        if ($index === null) {
+            return;
+        }
+
+        unset($this->skills[$index]);
+        $this->skills = array_values($this->skills);
+        $this->resetErrorBag('skills');
+    }
+
+    /** Ajoute la compétence si elle n'est pas choisie, la retire sinon (puces « Parcourir par catégorie »). */
+    public function toggleSkill(int $skillId): void
+    {
+        if ($this->skillIndex($skillId) !== null) {
+            $this->removeSkill($skillId);
+
+            return;
+        }
+
+        $this->addSkill($skillId);
+    }
+
+    public function setSkillLevel(int $skillId, string $level): void
+    {
+        $index = $this->skillIndex($skillId);
+
+        if ($index === null || SkillLevel::tryFrom($level) === null) {
+            return;
+        }
+
+        $this->skills[$index]['level'] = $level;
     }
 
     public function toggleHighlight(int $skillId): void
@@ -307,14 +378,12 @@ class EditProfile extends Component
         $data = $this->validate([
             'work_status' => ['nullable', Rule::enum(WorkStatus::class)],
             'company' => ['nullable', 'string', 'max:150'],
-            'company_visible' => ['boolean'],
             'availability' => ['nullable', Rule::enum(Availability::class)],
         ], attributes: ['work_status' => 'situation', 'company' => 'entreprise', 'availability' => 'disponibilité']);
 
         $this->profile->fill([
             'work_status' => $data['work_status'] ?: null,
             'company' => $data['company'] ?: null,
-            'company_visible' => $data['company_visible'],
             'availability' => $data['availability'] ?: null,
         ])->save();
     }
@@ -419,8 +488,6 @@ class EditProfile extends Component
             'github_url' => $url,
             'portfolio_url' => $url,
             'behance_url' => $url,
-            'whatsapp_visible' => ['boolean'],
-            'email_visible' => ['boolean'],
         ], attributes: [
             'linkedin_url' => 'lien LinkedIn',
             'github_url' => 'lien GitHub',
@@ -433,8 +500,6 @@ class EditProfile extends Component
             'github_url' => $data['github_url'] ?: null,
             'portfolio_url' => $data['portfolio_url'] ?: null,
             'behance_url' => $data['behance_url'] ?: null,
-            'whatsapp_visible' => $data['whatsapp_visible'],
-            'email_visible' => $data['email_visible'],
         ])->save();
     }
 
@@ -476,7 +541,6 @@ class EditProfile extends Component
 
         $this->work_status = (string) $profile->work_status?->value;
         $this->company = (string) $profile->company;
-        $this->company_visible = $profile->company_visible;
         $this->availability = (string) $profile->availability?->value;
 
         $this->projects = $profile->projects->map(fn (Project $project) => [
@@ -492,8 +556,6 @@ class EditProfile extends Component
         $this->github_url = (string) $profile->github_url;
         $this->portfolio_url = (string) $profile->portfolio_url;
         $this->behance_url = (string) $profile->behance_url;
-        $this->whatsapp_visible = $profile->whatsapp_visible;
-        $this->email_visible = $profile->email_visible;
     }
 
     public function render(): View

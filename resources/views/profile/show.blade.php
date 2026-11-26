@@ -2,10 +2,7 @@
 @use('App\Models\Profile')
 @php
     $viewer = auth()->user();
-    $canBrowse = $viewer->isApproved() || $viewer->is_admin;
-    $showCompany = $profile->company && ($profile->company_visible || $isOwner);
-    $showWhatsapp = $user->whatsapp && ($profile->whatsapp_visible || $isOwner);
-    $showEmail = $profile->email_visible || $isOwner;
+    $canBrowse = $viewer->can('directory.view');
     $skillsByCategory = $profile->skills->groupBy(fn ($skill) => $skill->category?->name ?? 'Autres');
     $links = $profile->links();
 @endphp
@@ -49,12 +46,11 @@
                         <div>
                             <dt class="sr-only">Situation</dt>
                             <dd>
-                                {{ $profile->work_status->label() }}@if ($showCompany) · {{ $profile->company }}@endif
-                                @if ($showCompany && ! $profile->company_visible) <span class="text-xs text-white/70">(entreprise masquée)</span> @endif
+                                {{ $profile->work_status->label() }}@if ($profile->company) · {{ $profile->company }}@endif
                             </dd>
                         </div>
-                    @elseif ($showCompany)
-                        <div><dt class="sr-only">Entreprise</dt><dd>{{ $profile->company }} @if (! $profile->company_visible) <span class="text-xs text-white/70">(masquée)</span> @endif</dd></div>
+                    @elseif ($profile->company)
+                        <div><dt class="sr-only">Entreprise</dt><dd>{{ $profile->company }}</dd></div>
                     @endif
                 </dl>
             </div>
@@ -63,22 +59,14 @@
 
     <div class="page-container">
     @if ($isOwner)
-        <div @class([
-            'mb-6 rounded-card border p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5',
-            'border-line border-l-4 border-l-lime bg-white' => $profile->isListed(),
-            'border-line border-l-4 border-l-violet bg-white' => ! $profile->isListed(),
-        ])>
+        <div class="mb-6 rounded-card border border-line border-l-4 border-l-violet bg-white p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5">
             <div>
-                <p class="font-semibold text-ink">Aperçu : voici ce que voient les autres membres.</p>
+                <p class="font-semibold text-ink">Aperçu : voici ton profil tel que le voit l'équipe Bénin Codeurs.</p>
                 <p class="mt-0.5 text-sm text-ink">
-                    @if ($profile->isListed())
-                        Ton profil est visible dans l'annuaire.
-                    @elseif ($profile->completion < Profile::minCompletion())
-                        Ton profil est complet à {{ $profile->completion }}&nbsp;% : il apparaîtra dans l'annuaire à partir de {{ Profile::minCompletion() }}&nbsp;%.
-                    @else
-                        Ton profil apparaîtra dans l'annuaire dès que ton compte sera validé par l'équipe.
+                    Seule l'équipe le consulte, pour proposer des missions et des opportunités.
+                    @if ($profile->completion < Profile::minCompletion())
+                        Ton profil est complet à {{ $profile->completion }}&nbsp;% : vise au moins {{ Profile::minCompletion() }}&nbsp;%.
                     @endif
-                    Les éléments masqués ne sont visibles que par toi.
                 </p>
             </div>
             <a href="{{ route('profile.edit') }}" class="btn-primary mt-3 shrink-0 text-sm sm:mt-0">Modifier mon profil</a>
@@ -164,7 +152,7 @@
             @if (! $profile->bio && $profile->skills->isEmpty() && $profile->projects->isEmpty())
                 <section class="card text-center text-sm text-muted">
                     @if ($isOwner)
-                        Ton profil est encore vide. <a href="{{ route('profile.edit') }}" class="link">Complète-le</a> pour apparaître dans l'annuaire.
+                        Ton profil est encore vide. <a href="{{ route('profile.edit') }}" class="link">Complète-le</a> pour te faire connaître de l'équipe.
                     @else
                         Ce membre n'a pas encore détaillé son profil.
                     @endif
@@ -175,27 +163,15 @@
         <aside class="space-y-6 lg:sticky lg:top-24">
             <section class="card">
                 <h2 class="section-title">Contact</h2>
-                @if ($showWhatsapp || $showEmail)
-                    <div class="mt-4 space-y-3">
-                        @if ($showWhatsapp)
-                            <a href="https://wa.me/{{ ltrim($user->whatsapp, '+') }}" target="_blank" rel="noopener noreferrer" class="btn-primary w-full sm:w-full">
-                                <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 14.98L2 22l5.17-1.5A9.9 9.9 0 1 0 12.04 2Zm5.8 14.1c-.24.68-1.42 1.3-1.96 1.35-.5.05-1.13.24-3.8-.8-3.2-1.27-5.24-4.53-5.4-4.74-.15-.21-1.29-1.72-1.29-3.28 0-1.56.82-2.33 1.11-2.65.29-.31.63-.39.84-.39h.6c.2 0 .46-.07.72.55.27.64.9 2.2.98 2.36.08.16.13.35.03.56-.1.21-.16.34-.31.52-.16.18-.33.4-.47.54-.16.16-.32.33-.14.64.18.31.81 1.33 1.74 2.16 1.2 1.06 2.2 1.39 2.52 1.55.31.16.5.13.68-.08.18-.21.78-.91.99-1.22.2-.31.41-.26.7-.16.28.1 1.8.85 2.11 1 .31.16.52.24.6.37.07.13.07.76-.18 1.47Z"/></svg>
-                                Écrire sur WhatsApp
-                            </a>
-                            @if ($isOwner && ! $profile->whatsapp_visible)
-                                <p class="text-xs text-muted">WhatsApp masqué pour les autres membres.</p>
-                            @endif
-                        @endif
-                        @if ($showEmail)
-                            <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) {{ $user->email }}</a>
-                            @if ($isOwner && ! $profile->email_visible)
-                                <p class="text-xs text-muted">E-mail masqué pour les autres membres.</p>
-                            @endif
-                        @endif
-                    </div>
-                @else
-                    <p class="mt-3 text-sm text-muted">Ce membre n'affiche pas ses coordonnées.@if ($links !== []) Tu peux le joindre par ses liens ci-dessous.@endif</p>
-                @endif
+                <div class="mt-4 space-y-3">
+                    @if ($user->whatsapp)
+                        <a href="https://wa.me/{{ ltrim($user->whatsapp, '+') }}" target="_blank" rel="noopener noreferrer" class="btn-primary w-full sm:w-full">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-5"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 14.98L2 22l5.17-1.5A9.9 9.9 0 1 0 12.04 2Zm5.8 14.1c-.24.68-1.42 1.3-1.96 1.35-.5.05-1.13.24-3.8-.8-3.2-1.27-5.24-4.53-5.4-4.74-.15-.21-1.29-1.72-1.29-3.28 0-1.56.82-2.33 1.11-2.65.29-.31.63-.39.84-.39h.6c.2 0 .46-.07.72.55.27.64.9 2.2.98 2.36.08.16.13.35.03.56-.1.21-.16.34-.31.52-.16.18-.33.4-.47.54-.16.16-.32.33-.14.64.18.31.81 1.33 1.74 2.16 1.2 1.06 2.2 1.39 2.52 1.55.31.16.5.13.68-.08.18-.21.78-.91.99-1.22.2-.31.41-.26.7-.16.28.1 1.8.85 2.11 1 .31.16.52.24.6.37.07.13.07.76-.18 1.47Z"/></svg>
+                            Écrire sur WhatsApp
+                        </a>
+                    @endif
+                    <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) {{ $user->email }}</a>
+                </div>
             </section>
 
             @if ($links !== [])

@@ -10,6 +10,7 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Support\Media;
 use App\Support\MembersCsvExport;
+use App\Support\Permissions;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -68,7 +69,11 @@ class UsersTable
                     ->state(fn (User $record) => $record->profile?->completion ?? 0)
                     ->suffix(' %')
                     ->badge()
-                    ->color(fn (int $state) => $state >= Profile::minCompletion() ? 'success' : ($state >= 40 ? 'warning' : 'gray')),
+                    ->color(fn (int $state) => $state >= Profile::minCompletion() ? 'success' : ($state >= 40 ? 'warning' : 'gray'))
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy(
+                        Profile::query()->select('completion')->whereColumn('profiles.user_id', 'users.id')->limit(1),
+                        $direction,
+                    )),
                 IconColumn::make('profile.is_featured')->label('À la une')
                     ->state(fn (User $record) => (bool) $record->profile?->is_featured)
                     ->boolean()
@@ -77,7 +82,6 @@ class UsersTable
                 IconColumn::make('email_verified')->label('E-mail vérifié')->boolean()
                     ->state(fn (User $record) => $record->email_verified_at !== null)
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_admin')->label('Admin')->boolean()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')->label('Inscrit le')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->filters([
@@ -91,7 +95,7 @@ class UsersTable
                 SelectFilter::make('availability')->label('Disponibilité')->options(Availability::options())
                     ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null,
                         fn (Builder $q, string $value) => $q->whereHas('profile', fn (Builder $p) => $p->where('availability', $value)))),
-                Filter::make('listed')->label("Visibles dans l'annuaire")->toggle()
+                Filter::make('listed')->label("Dans l'annuaire (profil complet)")->toggle()
                     ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->listed())),
                 Filter::make('incomplete')->label('Profil incomplet')->toggle()
                     ->query(fn (Builder $query) => $query->where(fn (Builder $q) => $q
@@ -100,7 +104,6 @@ class UsersTable
                 Filter::make('featured')->label('À la une')->toggle()
                     ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->where('is_featured', true))),
                 TernaryFilter::make('email_verified_at')->label('E-mail vérifié')->nullable(),
-                TernaryFilter::make('is_admin')->label('Administrateur'),
             ])
             ->recordActions([
                 ViewAction::make()->label('Voir'),
@@ -117,12 +120,14 @@ class UsersTable
                 BulkActionGroup::make([
                     BulkAction::make('exportSelected')
                         ->label('Exporter la sélection (CSV)')
+                        ->authorize(fn (): bool => Permissions::allows('members', 'export'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(fn (Collection $records) => MembersCsvExport::download(User::query()->whereKey($records->modelKeys()))),
                     self::bulkFeatureAction(true),
                     self::bulkFeatureAction(false),
                     BulkAction::make('reactivateSelected')
                         ->label('Réactiver la sélection')
+                        ->authorize(fn (): bool => Permissions::allows('members', 'update'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
                         ->requiresConfirmation()
@@ -135,11 +140,12 @@ class UsersTable
                         }),
                     BulkAction::make('suspendSelected')
                         ->label('Suspendre la sélection')
+                        ->authorize(fn (): bool => Permissions::allows('members', 'update'))
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
                         ->requiresConfirmation()
                         ->modalHeading('Suspendre les comptes sélectionnés ?')
-                        ->modalDescription('Les membres ne pourront plus accéder au Talent Board. Les administrateurs sélectionnés sont ignorés.')
+                        ->modalDescription('Les membres ne pourront plus accéder au Talent Board.')
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) {
                             $count = self::members($records)->reject(fn (User $user) => $user->isSuspended())
@@ -148,11 +154,12 @@ class UsersTable
                         }),
                     BulkAction::make('deleteSelected')
                         ->label('Supprimer la sélection')
+                        ->authorize(fn (): bool => Permissions::allows('members', 'delete'))
                         ->icon('heroicon-o-trash')
                         ->color('danger')
                         ->requiresConfirmation()
                         ->modalHeading('Supprimer définitivement les comptes sélectionnés ?')
-                        ->modalDescription('Comptes, profils, réalisations et images (Cloudinary) seront supprimés. Les administrateurs sélectionnés sont ignorés. Action irréversible.')
+                        ->modalDescription('Comptes, profils, réalisations et images (Cloudinary) seront supprimés. Action irréversible.')
                         ->modalSubmitActionLabel('Supprimer définitivement')
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) {
@@ -179,6 +186,7 @@ class UsersTable
     {
         return BulkAction::make($featured ? 'featureSelected' : 'unfeatureSelected')
             ->label($featured ? 'Mettre en avant la sélection' : 'Retirer la sélection de la une')
+            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
             ->icon($featured ? 'heroicon-s-star' : 'heroicon-o-star')
             ->color('warning')
             ->deselectRecordsAfterCompletion()
@@ -198,6 +206,7 @@ class UsersTable
     {
         return Action::make('reactivate')
             ->label('Réactiver')
+            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
             ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->requiresConfirmation()
@@ -231,6 +240,7 @@ class UsersTable
     {
         return Action::make('suspend')
             ->label('Suspendre')
+            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
             ->icon('heroicon-o-no-symbol')
             ->color('danger')
             ->requiresConfirmation()
@@ -248,6 +258,7 @@ class UsersTable
     {
         return Action::make('verifyEmail')
             ->label("Marquer l'e-mail comme vérifié")
+            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
             ->icon('heroicon-o-envelope-open')
             ->color('info')
             ->requiresConfirmation()
@@ -268,6 +279,7 @@ class UsersTable
     {
         return Action::make('feature')
             ->label(fn (User $record) => $record->profile?->is_featured ? 'Retirer de la une' : 'Mettre en avant')
+            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
             ->icon(fn (User $record) => $record->profile?->is_featured ? 'heroicon-o-star' : 'heroicon-s-star')
             ->color('warning')
             ->visible(fn (User $record) => ! $record->is_admin)
@@ -278,7 +290,7 @@ class UsersTable
                 Notification::make()
                     ->title($profile->is_featured ? 'Profil mis en avant.' : 'Profil retiré de la une.')
                     ->body($profile->is_featured && ! $profile->isListed()
-                        ? "Il s'affichera en premier dès qu'il sera visible dans l'annuaire (compte validé, profil complet à ".Profile::minCompletion().' %).'
+                        ? "Il s'affichera en premier dans l'annuaire de l'équipe dès que le profil sera complet à ".Profile::minCompletion().' % (compte validé).'
                         : null)
                     ->success()
                     ->send();
@@ -289,6 +301,7 @@ class UsersTable
     {
         return Action::make('viewInDirectory')
             ->label("Voir dans l'annuaire")
+            ->authorize(fn (): bool => Permissions::allows('directory', 'view'))
             ->icon('heroicon-o-arrow-top-right-on-square')
             ->color('gray')
             ->url(fn (User $record) => $record->profile ? route('directory.show', $record->profile) : null, shouldOpenInNewTab: true)

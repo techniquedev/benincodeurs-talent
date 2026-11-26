@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Filament\Concerns\AuthorizesBySection;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Pages\ViewUser;
@@ -13,9 +14,13 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
 class UserResource extends Resource
 {
+    use AuthorizesBySection;
+
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
@@ -26,7 +31,16 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Membres';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Talents';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'email';
+
+    public static function permissionSection(): string
+    {
+        return 'members';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -41,6 +55,12 @@ class UserResource extends Resource
     public static function canCreate(): bool
     {
         return false; // Les membres s'inscrivent eux-mêmes.
+    }
+
+    /** Les talents uniquement : les comptes de l'équipe sont gérés dans « Utilisateurs ». */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_admin', false);
     }
 
     public static function getPages(): array

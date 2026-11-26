@@ -6,6 +6,7 @@ use App\Enums\UserStatus;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use App\Support\MembersCsvExport;
+use App\Support\Permissions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -22,6 +23,7 @@ class ListUsers extends ListRecords
                 ->label('Exporter en CSV')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
+                ->authorize(fn (): bool => Permissions::allows('members', 'export'))
                 ->tooltip('Exporte les membres de la liste affichée (onglet, recherche et filtres compris).')
                 ->action(fn () => MembersCsvExport::download($this->getFilteredSortedTableQuery() ?? User::query())),
         ];

@@ -100,7 +100,7 @@ class Index extends Component
                 ->where('headline', $like, $term)
                 ->orWhere('bio', $like, $term)
                 ->orWhere('city', $like, $term)
-                ->orWhere(fn (Builder $c) => $c->where('company_visible', true)->where('company', $like, $term))
+                ->orWhere('company', $like, $term)
                 ->orWhereHas('user', fn (Builder $u) => $u->where('first_name', $like, $term)->orWhere('last_name', $like, $term))
                 ->orWhereHas('skills', fn (Builder $s) => $s->where('skills.name', $like, $term)));
         }

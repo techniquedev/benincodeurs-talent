@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Filesystem\CloudinaryAdapter;
+use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -34,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isProduction()) {
             URL::forceScheme('https');
         }
+
+        // Le super-admin (ADMIN_EMAIL) a tous les droits de l'admin, quels que soient ses rôles.
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
 
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
 

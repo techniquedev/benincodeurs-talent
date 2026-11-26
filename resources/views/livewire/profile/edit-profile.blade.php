@@ -26,15 +26,9 @@
                 <div>
                     <p class="font-semibold text-ink">Profil complet à {{ $completion }}&nbsp;%</p>
                     @if ($completion >= $minCompletion)
-                        <p class="mt-1 text-sm text-muted">
-                            @if ($user->isApproved())
-                                Ton profil apparaît dans l'annuaire.
-                            @else
-                                Ton profil apparaîtra dans l'annuaire dès que ton compte sera validé.
-                            @endif
-                        </p>
+                        <p class="mt-1 text-sm text-muted">Ton profil est complet : l'équipe Bénin Codeurs connaît tes compétences.</p>
                     @else
-                        <p class="mt-1 text-sm text-muted">Encore {{ $minCompletion - $completion }}&nbsp;% pour apparaître dans l'annuaire ({{ $minCompletion }}&nbsp;% minimum).</p>
+                        <p class="mt-1 text-sm text-muted">Encore {{ $minCompletion - $completion }}&nbsp;% pour un profil complet ({{ $minCompletion }}&nbsp;% minimum).</p>
                     @endif
                 </div>
             </div>
@@ -89,7 +83,7 @@
 
             {{-- 1. Identité --}}
             @if ($step === 1)
-                <p class="mt-1 text-sm text-muted">Ce que les autres membres voient en premier.</p>
+                <p class="mt-1 text-sm text-muted">Ce que l'équipe Bénin Codeurs voit en premier.</p>
 
                 <div class="mt-6 space-y-5">
                     <div>
@@ -193,78 +187,214 @@
                 </div>
             @endif
 
-            {{-- 3. Compétences --}}
+            {{-- 3. Compétences : recherche avec suggestions, suggestions selon le métier, catégories en accordéon, liste choisie. --}}
             @if ($step === 3)
                 @php
-                    $skillNames = $this->categories->flatMap->skills->pluck('name', 'id');
+                    $catalog = collect($this->skillCatalog);
+                    $skillNames = $catalog->pluck('name', 'id');
+                    $skillCategories = $catalog->pluck('category', 'id');
                     $selectedIds = collect($skills)->pluck('id')->map(fn ($id) => (int) $id)->all();
                     $highlightedCount = collect($skills)->where('highlighted', true)->count();
+                    $isFull = count($skills) >= Profile::MAX_SKILLS;
+                    $chosenProfession = Profession::tryFrom($profession);
                 @endphp
                 <p class="mt-1 text-sm text-muted">
                     Choisis jusqu'à {{ Profile::MAX_SKILLS }} compétences et indique ton niveau.
-                    Mets-en {{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant : elles s'affichent sur ta carte dans l'annuaire.
+                    Mets-en {{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant avec l'étoile : ce sont celles que l'équipe voit en premier.
                 </p>
 
                 @error('skills') <div class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">{{ $message }}</div> @enderror
 
-                <div class="mt-6">
+                {{-- Recherche avec suggestions (combobox) --}}
+                <div class="relative mt-6"
+                     x-data="{
+                        q: '',
+                        open: false,
+                        active: 0,
+                        catalog: @js($this->skillCatalog),
+                        get selectedIds() { return (this.$wire.skills ?? []).map((skill) => Number(skill.id)) },
+                        get results() {
+                            const term = this.q.trim().toLowerCase();
+                            if (term === '') { return [] }
+                            return this.catalog.filter((skill) => skill.name.toLowerCase().includes(term) && ! this.selectedIds.includes(skill.id)).slice(0, 8);
+                        },
+                        move(step) { if (this.results.length) { this.open = true; this.active = (this.active + step + this.results.length) % this.results.length } },
+                        choose(skill) {
+                            if (! skill) { return }
+                            this.$wire.addSkill(skill.id);
+                            this.q = '';
+                            this.open = false;
+                            this.active = 0;
+                            this.$refs.input.focus();
+                        },
+                     }"
+                     x-on:click.outside="open = false">
+                    <label for="skill-search" class="field-label">Rechercher une compétence</label>
+                    <div class="relative">
+                        @svg('heroicon-m-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted', ['aria-hidden' => 'true'])
+                        <input id="skill-search" x-ref="input" type="search" autocomplete="off" class="field-input pl-10"
+                               placeholder="Ex. Laravel, Figma, Power BI…"
+                               role="combobox" aria-autocomplete="list" aria-controls="skill-search-results"
+                               x-bind:aria-expanded="(open && q.trim() !== '').toString()"
+                               x-bind:aria-activedescendant="open && results.length ? 'skill-option-' + results[active].id : null"
+                               x-model="q"
+                               x-on:input="open = true; active = 0"
+                               x-on:focus="open = q.trim() !== ''"
+                               x-on:keydown.arrow-down.prevent="move(1)"
+                               x-on:keydown.arrow-up.prevent="move(-1)"
+                               x-on:keydown.enter.prevent="choose(results[active])"
+                               x-on:keydown.escape="open = false"
+                               @disabled($isFull)>
+                    </div>
+                    @if ($isFull)
+                        <p class="field-help">Tu as choisi {{ Profile::MAX_SKILLS }} compétences, le maximum. Retire-en une pour en ajouter une autre.</p>
+                    @endif
+
+                    <div x-show="open && q.trim() !== ''" x-cloak class="absolute inset-x-0 top-full z-20 mt-1 overflow-hidden rounded-lg border border-line bg-white shadow-lg">
+                        <ul id="skill-search-results" role="listbox" aria-label="Suggestions" class="max-h-72 overflow-y-auto py-1">
+                            <template x-for="(skill, index) in results" x-bind:key="skill.id">
+                                <li role="option" x-bind:id="'skill-option-' + skill.id" x-bind:aria-selected="(index === active).toString()"
+                                    x-on:mousedown.prevent="choose(skill)" x-on:mouseenter="active = index"
+                                    x-bind:class="index === active ? 'bg-violet/8' : ''"
+                                    class="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-2 text-sm">
+                                    <span class="font-medium text-ink" x-text="skill.name"></span>
+                                    <span class="text-xs text-muted" x-text="skill.category"></span>
+                                </li>
+                            </template>
+                        </ul>
+                        <p x-show="results.length === 0" class="px-4 py-3 text-sm text-muted">
+                            Aucune compétence trouvée (ou déjà choisie). Parcours les catégories ci-dessous.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- 8 suggestions selon le métier --}}
+                @if ($this->suggestedSkills->isNotEmpty())
+                    <div class="mt-6">
+                        <h3 class="text-sm font-semibold text-ink">
+                            {{ $chosenProfession ? 'Suggestions pour ton métier : '.$chosenProfession->label() : 'Compétences souvent choisies' }}
+                        </h3>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            @foreach ($this->suggestedSkills as $suggestion)
+                                @php $isSelected = in_array($suggestion->id, $selectedIds, true); @endphp
+                                <button type="button" wire:key="suggestion-{{ $suggestion->id }}" wire:click="toggleSkill({{ $suggestion->id }})"
+                                        aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
+                                        @disabled($isFull && ! $isSelected)
+                                        @class([
+                                            'chip min-h-10 disabled:cursor-not-allowed disabled:opacity-50',
+                                            'border-violet bg-violet text-white' => $isSelected,
+                                            'border-line bg-white text-ink hover:border-violet hover:text-violet' => ! $isSelected,
+                                        ])>
+                                    @if ($isSelected) @svg('heroicon-m-check', 'size-4', ['aria-hidden' => 'true']) @else @svg('heroicon-m-plus', 'size-4', ['aria-hidden' => 'true']) @endif
+                                    {{ $suggestion->name }}
+                                </button>
+                            @endforeach
+                        </div>
+                        @unless ($chosenProfession)
+                            <p class="field-help">Choisis ton métier à l'étape 2 pour des suggestions adaptées.</p>
+                        @endunless
+                    </div>
+                @endif
+
+                {{-- Compétences choisies --}}
+                <div class="mt-8">
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="text-sm font-semibold text-ink">Mes compétences</h3>
                         <p class="text-xs font-semibold text-muted">{{ count($skills) }}/{{ Profile::MAX_SKILLS }} · {{ $highlightedCount }}/{{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant</p>
                     </div>
 
                     @if ($skills === [])
-                        <p class="mt-3 rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-muted">Aucune compétence choisie. Touche une compétence ci-dessous pour l'ajouter.</p>
+                        <p class="mt-3 rounded-lg border border-dashed border-line px-4 py-6 text-center text-sm text-muted">Aucune compétence choisie. Recherche-en une ou touche une suggestion.</p>
                     @else
-                        <ul class="mt-3 divide-y divide-line rounded-lg border border-line">
-                            @foreach ($skills as $i => $skill)
-                                <li wire:key="selected-{{ $skill['id'] }}" class="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex-nowrap">
-                                    <button type="button" wire:click="toggleHighlight({{ $skill['id'] }})"
-                                            aria-pressed="{{ $skill['highlighted'] ? 'true' : 'false' }}"
-                                            title="{{ $skill['highlighted'] ? 'Retirer de la mise en avant' : 'Mettre en avant' }}"
-                                            @class([
-                                                'grid size-9 shrink-0 place-items-center rounded-full text-lg transition',
-                                                'bg-lime text-ink' => $skill['highlighted'],
-                                                'bg-line text-muted hover:text-violet' => ! $skill['highlighted'],
-                                            ])>
-                                        @svg('heroicon-s-star', 'size-5', ['aria-hidden' => 'true'])
-                                        <span class="sr-only">{{ $skill['highlighted'] ? 'Mise en avant' : 'Mettre en avant' }}</span>
-                                    </button>
-                                    <span class="min-w-0 flex-1 font-semibold text-ink">{{ $skillNames[$skill['id']] ?? 'Compétence retirée' }}</span>
-                                    <label class="sr-only" for="skill-level-{{ $skill['id'] }}">Niveau en {{ $skillNames[$skill['id']] ?? '' }}</label>
-                                    <select wire:model="skills.{{ $i }}.level" id="skill-level-{{ $skill['id'] }}" class="field-select w-auto min-w-36 py-2 text-base sm:text-sm">
-                                        @foreach (SkillLevel::cases() as $option)
-                                            <option value="{{ $option->value }}">{{ $option->label() }}</option>
-                                        @endforeach
-                                    </select>
-                                    <button type="button" wire:click="toggleSkill({{ $skill['id'] }})" class="grid size-9 shrink-0 place-items-center rounded-full text-muted hover:bg-red-50 hover:text-red-700" title="Retirer">
-                                        @svg('heroicon-m-x-mark', 'size-5', ['aria-hidden' => 'true'])<span class="sr-only">Retirer</span>
-                                    </button>
+                        <ul class="mt-3 divide-y divide-line rounded-lg border border-line bg-white">
+                            @foreach ($skills as $skill)
+                                @php
+                                    $skillId = (int) $skill['id'];
+                                    $skillName = $skillNames[$skillId] ?? 'Compétence retirée';
+                                    $currentLevel = SkillLevel::tryFrom($skill['level']) ?? SkillLevel::Intermediate;
+                                    $canHighlight = $skill['highlighted'] || $highlightedCount < Profile::MAX_HIGHLIGHTED_SKILLS;
+                                @endphp
+                                <li wire:key="selected-{{ $skillId }}" class="px-3 py-3 sm:px-4">
+                                    <div class="flex items-center gap-3">
+                                        <button type="button" wire:click="toggleHighlight({{ $skillId }})"
+                                                aria-pressed="{{ $skill['highlighted'] ? 'true' : 'false' }}"
+                                                @disabled(! $canHighlight)
+                                                title="{{ $skill['highlighted'] ? 'Retirer de la mise en avant' : ($canHighlight ? 'Mettre en avant' : Profile::MAX_HIGHLIGHTED_SKILLS.' compétences en avant au maximum') }}"
+                                                @class([
+                                                    'grid size-10 shrink-0 place-items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-40',
+                                                    'bg-violet text-white' => $skill['highlighted'],
+                                                    'bg-paper text-muted hover:text-violet' => ! $skill['highlighted'],
+                                                ])>
+                                            @svg($skill['highlighted'] ? 'heroicon-s-star' : 'heroicon-o-star', 'size-5', ['aria-hidden' => 'true'])
+                                            <span class="sr-only">{{ $skill['highlighted'] ? 'Retirer '.$skillName.' de la mise en avant' : 'Mettre '.$skillName.' en avant' }}</span>
+                                        </button>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="truncate font-semibold text-ink">{{ $skillName }}</p>
+                                            @if ($skillCategories[$skillId] ?? null)
+                                                <p class="truncate text-xs text-muted">{{ $skillCategories[$skillId] }}</p>
+                                            @endif
+                                        </div>
+                                        <button type="button" wire:click="removeSkill({{ $skillId }})" class="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-red-50 hover:text-red-700">
+                                            @svg('heroicon-m-x-mark', 'size-5', ['aria-hidden' => 'true'])<span class="sr-only">Retirer {{ $skillName }}</span>
+                                        </button>
+                                    </div>
+
+                                    {{-- Niveau en 4 crans --}}
+                                    <fieldset class="mt-3 sm:pl-13">
+                                        <legend class="sr-only">Niveau en {{ $skillName }}</legend>
+                                        <div class="grid grid-cols-4 gap-1.5">
+                                            @foreach (SkillLevel::cases() as $option)
+                                                <label class="cursor-pointer">
+                                                    <input type="radio" name="skill-level-{{ $skillId }}" value="{{ $option->value }}" class="peer sr-only"
+                                                           @checked($option === $currentLevel)
+                                                           wire:change="setSkillLevel({{ $skillId }}, '{{ $option->value }}')">
+                                                    <span @class([
+                                                        'block h-1.5 rounded-full transition peer-focus-visible:ring-2 peer-focus-visible:ring-violet/40',
+                                                        'bg-violet' => $option->rank() <= $currentLevel->rank(),
+                                                        'bg-line' => $option->rank() > $currentLevel->rank(),
+                                                    ])></span>
+                                                    <span @class([
+                                                        'mt-1.5 block rounded-md py-1 text-center text-xs transition peer-focus-visible:outline-2 peer-focus-visible:outline-violet',
+                                                        'font-semibold text-violet' => $option === $currentLevel,
+                                                        'text-muted hover:text-ink' => $option !== $currentLevel,
+                                                    ])>{{ $option->label() }}</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </fieldset>
                                 </li>
                             @endforeach
                         </ul>
                     @endif
                 </div>
 
-                <div class="mt-8" x-data="{ q: '' }">
-                    <label for="skill-search" class="field-label">Ajouter des compétences</label>
-                    <input id="skill-search" type="search" x-model="q" class="field-input" placeholder="Rechercher une compétence (ex. Laravel, Figma…)" autocomplete="off">
-
-                    <div class="mt-5 space-y-5">
+                {{-- Parcourir par catégorie : accordéon --}}
+                <div class="mt-8">
+                    <h3 class="text-sm font-semibold text-ink">Parcourir par catégorie</h3>
+                    <div class="mt-3 space-y-2">
                         @foreach ($this->categories as $category)
-                            <section wire:key="category-{{ $category->id }}"
-                                     data-names="{{ mb_strtolower($category->skills->pluck('name')->join('|')) }}"
-                                     x-show="q === '' || $el.dataset.names.includes(q.toLowerCase())">
-                                <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ $category->name }}</h3>
-                                <div class="mt-2 flex flex-wrap gap-2">
+                            @php $selectedInCategory = $category->skills->whereIn('id', $selectedIds)->count(); @endphp
+                            <details wire:key="category-{{ $category->id }}" wire:ignore.self class="group rounded-lg border border-line bg-white">
+                                <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                                    <span>
+                                        {{ $category->name }}
+                                        <span class="ml-1 font-normal text-muted">({{ $category->skills->count() }})</span>
+                                    </span>
+                                    <span class="flex items-center gap-2">
+                                        @if ($selectedInCategory > 0)
+                                            <span class="badge bg-violet/10 text-violet">{{ $selectedInCategory }} choisie{{ $selectedInCategory > 1 ? 's' : '' }}</span>
+                                        @endif
+                                        @svg('heroicon-m-chevron-down', 'size-5 text-muted transition group-open:rotate-180', ['aria-hidden' => 'true'])
+                                    </span>
+                                </summary>
+                                <div class="flex flex-wrap gap-2 border-t border-line px-4 py-4">
                                     @foreach ($category->skills as $skillOption)
                                         @php $isSelected = in_array($skillOption->id, $selectedIds, true); @endphp
                                         <button type="button" wire:key="skill-{{ $skillOption->id }}" wire:click="toggleSkill({{ $skillOption->id }})"
                                                 aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
-                                                data-name="{{ mb_strtolower($skillOption->name) }}"
-                                                x-show="q === '' || $el.dataset.name.includes(q.toLowerCase())"
+                                                @disabled($isFull && ! $isSelected)
                                                 @class([
-                                                    'chip',
+                                                    'chip min-h-10 disabled:cursor-not-allowed disabled:opacity-50',
                                                     'border-violet bg-violet text-white' => $isSelected,
                                                     'border-line bg-white text-ink hover:border-violet hover:text-violet' => ! $isSelected,
                                                 ])>
@@ -273,7 +403,7 @@
                                         </button>
                                     @endforeach
                                 </div>
-                            </section>
+                            </details>
                         @endforeach
                     </div>
                 </div>
@@ -305,10 +435,6 @@
                         <label for="company" class="field-label">Entreprise actuelle <span class="font-normal text-muted">(facultatif)</span></label>
                         <input wire:model="company" id="company" type="text" maxlength="150" class="field-input" placeholder="Ex. Bénin Codeurs">
                         @error('company') <p class="field-error">{{ $message }}</p> @enderror
-                        <label class="mt-3 flex cursor-pointer items-center gap-3 text-sm text-ink">
-                            <input type="checkbox" wire:model="company_visible" class="size-5 rounded accent-violet">
-                            Afficher mon entreprise aux autres membres
-                        </label>
                     </div>
 
                     <fieldset>
@@ -393,7 +519,7 @@
 
             {{-- 6. Liens et contact --}}
             @if ($step === 6)
-                <p class="mt-1 text-sm text-muted">Où les autres membres peuvent voir ton travail et te contacter.</p>
+                <p class="mt-1 text-sm text-muted">Où l'équipe peut voir ton travail en ligne.</p>
 
                 <div class="mt-6 grid gap-5 sm:grid-cols-2">
                     @foreach (['linkedin_url' => ['LinkedIn', 'linkedin.com/in/ton-nom'], 'github_url' => ['GitHub', 'github.com/ton-pseudo'], 'portfolio_url' => ['Portfolio', 'ton-site.com'], 'behance_url' => ['Behance', 'behance.net/ton-pseudo']] as $field => [$label, $placeholder])
@@ -405,26 +531,13 @@
                     @endforeach
                 </div>
 
-                <fieldset class="mt-8">
-                    <legend class="field-label">Contact visible par les autres membres</legend>
-                    <div class="space-y-3">
-                        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-line px-4 py-3">
-                            <input type="checkbox" wire:model="whatsapp_visible" class="mt-0.5 size-5 rounded accent-violet">
-                            <span>
-                                <span class="block text-sm font-semibold text-ink">Afficher mon WhatsApp</span>
-                                <span class="block text-sm text-muted">{{ $user->whatsapp ?: 'Aucun numéro enregistré' }}</span>
-                            </span>
-                        </label>
-                        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-line px-4 py-3">
-                            <input type="checkbox" wire:model="email_visible" class="mt-0.5 size-5 rounded accent-violet">
-                            <span>
-                                <span class="block text-sm font-semibold text-ink">Afficher mon e-mail</span>
-                                <span class="block text-sm break-all text-muted">{{ $user->email }}</span>
-                            </span>
-                        </label>
-                    </div>
-                    <p class="field-help">Masqués par défaut. Seuls les membres validés de la communauté voient l'annuaire.</p>
-                </fieldset>
+                <div class="mt-8 rounded-lg border border-line bg-paper px-4 py-3 text-sm">
+                    <p class="font-semibold text-ink">Tes coordonnées</p>
+                    <p class="mt-1 text-muted">
+                        WhatsApp : {{ $user->whatsapp ?: 'aucun numéro enregistré' }} · E-mail : <span class="break-all">{{ $user->email }}</span>.
+                        L'équipe Bénin Codeurs les utilise pour te contacter au sujet d'une mission ou d'une opportunité.
+                    </p>
+                </div>
             @endif
 
             {{-- Navigation entre étapes --}}
