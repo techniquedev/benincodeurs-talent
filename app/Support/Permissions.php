@@ -6,12 +6,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Droits de l'équipe dans l'admin, par section et par action : « section.action » (ex. « members.export »).
- * Les rôles (spatie/laravel-permission) regroupent ces droits ; le super-admin (ADMIN_EMAIL) les a tous.
+ * Droits de l'équipe dans l'admin : 5 cases globales, valables sur tout le tableau de bord
+ * (membres, annuaire, compétences, catégories, export CSV). Stockés en permissions directes
+ * (spatie/laravel-permission) nommées « admin.action ». Le super-admin (ADMIN_EMAIL) les a toutes.
  */
 class Permissions
 {
-    /** @var array<string, string> Action => libellé, dans l'ordre des colonnes de la grille. */
+    /** @var array<string, string> Action => libellé, dans l'ordre d'affichage. */
     public const ABILITIES = [
         'view' => 'Voir',
         'create' => 'Créer',
@@ -20,45 +21,49 @@ class Permissions
         'export' => 'Exporter',
     ];
 
-    /**
-     * Sections de l'admin et actions possibles dans chacune.
-     *
-     * @var array<string, array{label: string, abilities: list<string>}>
-     */
-    public const SECTIONS = [
-        'members' => ['label' => 'Membres (talents)', 'abilities' => ['view', 'update', 'delete', 'export']],
-        'directory' => ['label' => 'Annuaire', 'abilities' => ['view']],
-        'skills' => ['label' => 'Compétences', 'abilities' => ['view', 'create', 'update', 'delete']],
-        'skill_categories' => ['label' => 'Catégories de compétences', 'abilities' => ['view', 'create', 'update', 'delete']],
-        'team' => ['label' => 'Utilisateurs (équipe)', 'abilities' => ['view', 'create', 'update', 'delete']],
-        'roles' => ['label' => 'Rôles et permissions', 'abilities' => ['view', 'create', 'update', 'delete']],
-    ];
+    /** Droit obligatoire : sans lui, aucune section n'est visible. */
+    public const REQUIRED = 'view';
 
-    public static function name(string $section, string $ability): string
+    public static function name(string $ability): string
     {
-        return $section.'.'.$ability;
+        return 'admin.'.$ability;
     }
 
     /** @return list<string> Tous les noms de permissions. */
     public static function all(): array
     {
-        return collect(self::SECTIONS)
-            ->flatMap(fn (array $section, string $key) => collect($section['abilities'])->map(fn (string $ability) => self::name($key, $ability)))
-            ->values()
-            ->all();
-    }
-
-    /** @return array<string, string> Actions possibles d'une section : action => libellé. */
-    public static function abilitiesFor(string $section): array
-    {
-        return array_intersect_key(self::ABILITIES, array_flip(self::SECTIONS[$section]['abilities']));
+        return array_map(self::name(...), array_keys(self::ABILITIES));
     }
 
     /** L'utilisateur connecté (ou celui donné) a-t-il ce droit ? */
-    public static function allows(string $section, string $ability, ?User $user = null): bool
+    public static function allows(string $ability, ?User $user = null): bool
     {
         $user ??= Auth::user();
 
-        return $user instanceof User && $user->can(self::name($section, $ability));
+        return $user instanceof User && $user->can(self::name($ability));
+    }
+
+    /** @return list<string> Actions accordées à un utilisateur (ex. ['view', 'export']), dans l'ordre d'affichage. */
+    public static function abilitiesOf(User $user): array
+    {
+        if ($user->isSuperAdmin()) {
+            return array_keys(self::ABILITIES);
+        }
+
+        $granted = $user->getDirectPermissions()->pluck('name')->all();
+
+        return array_values(array_filter(array_keys(self::ABILITIES), fn (string $ability): bool => in_array(self::name($ability), $granted, true)));
+    }
+
+    /**
+     * Remplace les droits d'un utilisateur par les actions cochées (« Voir » toujours inclus).
+     *
+     * @param  array<int, string>  $abilities
+     */
+    public static function sync(User $user, array $abilities): void
+    {
+        $abilities = array_intersect(array_keys(self::ABILITIES), [...$abilities, self::REQUIRED]);
+
+        $user->syncPermissions(array_map(self::name(...), array_values($abilities)));
     }
 }

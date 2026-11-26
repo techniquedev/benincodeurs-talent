@@ -2,7 +2,7 @@
 @use('App\Models\Profile')
 @php
     $viewer = auth()->user();
-    $canBrowse = $viewer->can('directory.view');
+    $canBrowse = $viewer->can('admin.view');
     $skillsByCategory = $profile->skills->groupBy(fn ($skill) => $skill->category?->name ?? 'Autres');
     $links = $profile->links();
 @endphp

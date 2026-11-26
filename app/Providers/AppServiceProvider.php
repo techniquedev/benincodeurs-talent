@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Le super-admin (ADMIN_EMAIL) a tous les droits de l'admin, quels que soient ses rôles.
+        // Le super-admin (ADMIN_EMAIL) a tous les droits de l'admin.
         Gate::before(fn (User $user) => $user->isSuperAdmin() ? true : null);
 
         Password::defaults(fn () => Password::min(8)->letters()->numbers());

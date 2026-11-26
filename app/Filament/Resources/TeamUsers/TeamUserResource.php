@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\TeamUsers;
 
 use App\Enums\UserStatus;
-use App\Filament\Concerns\AuthorizesBySection;
 use App\Filament\Resources\TeamUsers\Pages\ManageTeamUsers;
 use App\Models\User;
+use App\Support\Permissions;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -23,17 +23,16 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use UnitEnum;
 
 /**
  * Comptes de l'équipe Bénin Codeurs (administrateurs), distincts des talents : créés ici, sans vérification VIP.
- * Leurs droits viennent de leurs rôles. Le compte principal (ADMIN_EMAIL) est super-admin : tous les droits,
- * jamais supprimable ni rétrogradable, et modifiable par lui seul.
+ * Section réservée au super-admin (ADMIN_EMAIL). Chaque compte reçoit 5 droits globaux (Voir, Créer, Modifier,
+ * Supprimer, Exporter) valables sur tout le tableau de bord. Le compte principal n'est jamais supprimable.
  */
 class TeamUserResource extends Resource
 {
-    use AuthorizesBySection;
-
     protected static ?string $model = User::class;
 
     protected static ?string $slug = 'utilisateurs';
@@ -52,14 +51,17 @@ class TeamUserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'email';
 
-    public static function permissionSection(): string
-    {
-        return 'team';
-    }
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('is_admin', true);
+    }
+
+    /** Toute la section (menu, liste, création, modification, suppression) est réservée au super-admin. */
+    public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response
+    {
+        $currentUser = Auth::user();
+
+        return $currentUser instanceof User && $currentUser->isSuperAdmin() ? Response::allow() : Response::deny();
     }
 
     /** Le compte principal n'est modifiable que par lui-même. */
@@ -105,14 +107,23 @@ class TeamUserResource extends Resource
                                 ? '12 caractères minimum. Communiquez-le à la personne, qui pourra le changer avec « Mot de passe oublié ».'
                                 : 'Laisser vide pour garder le mot de passe actuel.'),
                     ]),
-                Section::make('Rôles')
-                    ->description('Les droits de chaque rôle se règlent dans « Rôles ». Un utilisateur sans rôle ne voit aucune section.')
+                Section::make('Droits')
+                    ->description('Valables sur tout le tableau de bord : membres, annuaire, compétences, catégories et export CSV. Modifiables à tout moment.')
                     ->schema([
-                        Text::make('Super-admin : tous les droits, quels que soient ses rôles. Ce compte ne peut être ni supprimé ni rétrogradé.')
+                        Text::make('Super-admin : tous les droits, y compris la gestion des utilisateurs. Ce compte ne peut pas être supprimé.')
                             ->visible(fn (?User $record): bool => (bool) $record?->isSuperAdmin()),
-                        CheckboxList::make('roles')->label('Rôles')
-                            ->relationship('roles', 'name')
-                            ->columns(2)
+                        CheckboxList::make('abilities')->hiddenLabel()
+                            ->options(Permissions::ABILITIES)
+                            ->default([Permissions::REQUIRED])
+                            ->disableOptionWhen(fn (string $value): bool => $value === Permissions::REQUIRED)
+                            ->descriptions([Permissions::REQUIRED => 'Obligatoire'])
+                            ->columns(5)
+                            ->gridDirection('row')
+                            ->afterStateHydrated(function (CheckboxList $component, ?User $record): void {
+                                if ($record) {
+                                    $component->state(Permissions::abilitiesOf($record));
+                                }
+                            })
                             ->hidden(fn (?User $record): bool => (bool) $record?->isSuperAdmin()),
                     ]),
             ]);
@@ -122,25 +133,24 @@ class TeamUserResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('roles'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('permissions'))
             ->columns([
                 TextColumn::make('name')->label('Nom')
                     ->state(fn (User $record): string => $record->name)
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(['last_name', 'first_name']),
                 TextColumn::make('email')->label('E-mail')->searchable()->copyable(),
-                TextColumn::make('access')->label('Rôles')->badge()
-                    ->state(fn (User $record): array => $record->isSuperAdmin() ? ['Super-admin'] : $record->roles->pluck('name')->all())
+                TextColumn::make('abilities')->label('Droits')->badge()
+                    ->state(fn (User $record): array => $record->isSuperAdmin()
+                        ? ['Super-admin']
+                        : array_map(fn (string $ability): string => Permissions::ABILITIES[$ability], Permissions::abilitiesOf($record)))
                     ->color(fn (string $state): string => $state === 'Super-admin' ? 'primary' : 'gray')
-                    ->placeholder('Aucun rôle'),
-                TextColumn::make('status')->label('Statut')->badge()
-                    ->formatStateUsing(fn (UserStatus $state): string => $state->label())
-                    ->color(fn (UserStatus $state): string => $state->color())
-                    ->icon(fn (UserStatus $state): string => $state->icon()),
+                    ->placeholder('Aucun droit'),
                 TextColumn::make('created_at')->label('Créé le')->dateTime('d/m/Y')->sortable(),
             ])
             ->recordActions([
-                EditAction::make()->label('Modifier'),
+                EditAction::make()->label('Modifier')
+                    ->using(fn (User $record, array $data): User => self::updateTeamUser($record, $data)),
                 DeleteAction::make()->label('Supprimer')
                     ->modalHeading('Supprimer cet utilisateur ?')
                     ->modalDescription("Il perdra immédiatement l'accès à l'admin. Cette action est irréversible."),
@@ -150,19 +160,41 @@ class TeamUserResource extends Resource
     /**
      * Crée un compte de l'équipe : administrateur, validé, e-mail vérifié, sans vérification VIP.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array{first_name: string, last_name: string, email: string, password: string, abilities?: list<string>}  $data
      */
     public static function createTeamUser(array $data): User
     {
-        $user = new User(Arr::only($data, ['first_name', 'last_name', 'email', 'password']));
-        $user->forceFill([
-            'is_admin' => true,
-            'status' => UserStatus::Approved,
-            'approved_at' => now(),
-            'email_verified_at' => now(),
-        ])->save();
+        return DB::transaction(function () use ($data): User {
+            $user = new User(Arr::only($data, ['first_name', 'last_name', 'email', 'password']));
+            $user->forceFill([
+                'is_admin' => true,
+                'status' => UserStatus::Approved,
+                'approved_at' => now(),
+                'email_verified_at' => now(),
+            ])->save();
 
-        return $user;
+            Permissions::sync($user, $data['abilities'] ?? []);
+
+            return $user;
+        });
+    }
+
+    /**
+     * Met à jour l'identité et les droits d'un compte de l'équipe (le super-admin garde tous ses droits).
+     *
+     * @param  array{first_name?: string, last_name?: string, email?: string, password?: string, abilities?: list<string>}  $data
+     */
+    public static function updateTeamUser(User $user, array $data): User
+    {
+        return DB::transaction(function () use ($user, $data): User {
+            $user->update(Arr::only($data, ['first_name', 'last_name', 'email', 'password']));
+
+            if (! $user->isSuperAdmin()) {
+                Permissions::sync($user, $data['abilities'] ?? []);
+            }
+
+            return $user;
+        });
     }
 
     public static function getPages(): array

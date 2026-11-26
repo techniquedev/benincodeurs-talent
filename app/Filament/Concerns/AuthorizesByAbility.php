@@ -8,14 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 /**
- * Autorise une ressource Filament à partir des permissions « section.action » (App\Support\Permissions) :
- * le menu, les pages et les actions standard (créer, modifier, supprimer…) suivent les droits du rôle.
+ * Autorise une ressource Filament à partir des 5 droits globaux de l'utilisateur (App\Support\Permissions) :
+ * le menu, les pages et les actions standard (créer, modifier, supprimer…) suivent ces droits.
  */
-trait AuthorizesBySection
+trait AuthorizesByAbility
 {
-    /** Clé de la section dans App\Support\Permissions::SECTIONS. */
-    abstract public static function permissionSection(): string;
-
     public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response
     {
         $action = $action instanceof UnitEnum ? $action->name : $action;
@@ -33,6 +30,6 @@ trait AuthorizesBySection
 
     public static function allows(string $ability): bool
     {
-        return Permissions::allows(static::permissionSection(), $ability);
+        return Permissions::allows($ability);
     }
 }

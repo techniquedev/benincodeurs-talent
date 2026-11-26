@@ -35,7 +35,7 @@
                     @auth
                         <li><a href="{{ route('dashboard') }}" class="{{ $columnLink }}">Mon espace</a></li>
                         <li><a href="{{ route('profile.edit') }}" class="{{ $columnLink }}">Mon profil</a></li>
-                        @if (auth()->user()->can('directory.view'))
+                        @if (auth()->user()->can('admin.view'))
                             <li><a href="{{ route('directory') }}" class="{{ $columnLink }}">Annuaire</a></li>
                         @endif
                     @else

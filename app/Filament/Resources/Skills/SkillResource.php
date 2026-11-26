@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Skills;
 
-use App\Filament\Concerns\AuthorizesBySection;
+use App\Filament\Concerns\AuthorizesByAbility;
 use App\Filament\Resources\Skills\Pages\ManageSkills;
 use App\Models\Skill;
 use App\Models\SkillCategory;
@@ -26,7 +26,7 @@ use UnitEnum;
 
 class SkillResource extends Resource
 {
-    use AuthorizesBySection;
+    use AuthorizesByAbility;
 
     protected static ?string $model = Skill::class;
 
@@ -43,11 +43,6 @@ class SkillResource extends Resource
     protected static ?string $navigationLabel = 'Compétences';
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    public static function permissionSection(): string
-    {
-        return 'skills';
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -101,6 +96,7 @@ class SkillResource extends Resource
                 BulkActionGroup::make([
                     BulkAction::make('moveToCategory')
                         ->label('Changer de catégorie')
+                        ->authorize(fn (): bool => self::allows('update'))
                         ->icon('heroicon-o-folder-arrow-down')
                         ->schema([
                             Select::make('skill_category_id')

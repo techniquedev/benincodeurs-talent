@@ -120,14 +120,14 @@ class UsersTable
                 BulkActionGroup::make([
                     BulkAction::make('exportSelected')
                         ->label('Exporter la sélection (CSV)')
-                        ->authorize(fn (): bool => Permissions::allows('members', 'export'))
+                        ->authorize(fn (): bool => Permissions::allows('export'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(fn (Collection $records) => MembersCsvExport::download(User::query()->whereKey($records->modelKeys()))),
                     self::bulkFeatureAction(true),
                     self::bulkFeatureAction(false),
                     BulkAction::make('reactivateSelected')
                         ->label('Réactiver la sélection')
-                        ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+                        ->authorize(fn (): bool => Permissions::allows('update'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
                         ->requiresConfirmation()
@@ -140,7 +140,7 @@ class UsersTable
                         }),
                     BulkAction::make('suspendSelected')
                         ->label('Suspendre la sélection')
-                        ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+                        ->authorize(fn (): bool => Permissions::allows('update'))
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
                         ->requiresConfirmation()
@@ -154,7 +154,7 @@ class UsersTable
                         }),
                     BulkAction::make('deleteSelected')
                         ->label('Supprimer la sélection')
-                        ->authorize(fn (): bool => Permissions::allows('members', 'delete'))
+                        ->authorize(fn (): bool => Permissions::allows('delete'))
                         ->icon('heroicon-o-trash')
                         ->color('danger')
                         ->requiresConfirmation()
@@ -186,7 +186,7 @@ class UsersTable
     {
         return BulkAction::make($featured ? 'featureSelected' : 'unfeatureSelected')
             ->label($featured ? 'Mettre en avant la sélection' : 'Retirer la sélection de la une')
-            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+            ->authorize(fn (): bool => Permissions::allows('update'))
             ->icon($featured ? 'heroicon-s-star' : 'heroicon-o-star')
             ->color('warning')
             ->deselectRecordsAfterCompletion()
@@ -206,7 +206,7 @@ class UsersTable
     {
         return Action::make('reactivate')
             ->label('Réactiver')
-            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+            ->authorize(fn (): bool => Permissions::allows('update'))
             ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->requiresConfirmation()
@@ -240,7 +240,7 @@ class UsersTable
     {
         return Action::make('suspend')
             ->label('Suspendre')
-            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+            ->authorize(fn (): bool => Permissions::allows('update'))
             ->icon('heroicon-o-no-symbol')
             ->color('danger')
             ->requiresConfirmation()
@@ -258,7 +258,7 @@ class UsersTable
     {
         return Action::make('verifyEmail')
             ->label("Marquer l'e-mail comme vérifié")
-            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+            ->authorize(fn (): bool => Permissions::allows('update'))
             ->icon('heroicon-o-envelope-open')
             ->color('info')
             ->requiresConfirmation()
@@ -279,7 +279,7 @@ class UsersTable
     {
         return Action::make('feature')
             ->label(fn (User $record) => $record->profile?->is_featured ? 'Retirer de la une' : 'Mettre en avant')
-            ->authorize(fn (): bool => Permissions::allows('members', 'update'))
+            ->authorize(fn (): bool => Permissions::allows('update'))
             ->icon(fn (User $record) => $record->profile?->is_featured ? 'heroicon-o-star' : 'heroicon-s-star')
             ->color('warning')
             ->visible(fn (User $record) => ! $record->is_admin)
@@ -301,7 +301,7 @@ class UsersTable
     {
         return Action::make('viewInDirectory')
             ->label("Voir dans l'annuaire")
-            ->authorize(fn (): bool => Permissions::allows('directory', 'view'))
+            ->authorize(fn (): bool => Permissions::allows('view'))
             ->icon('heroicon-o-arrow-top-right-on-square')
             ->color('gray')
             ->url(fn (User $record) => $record->profile ? route('directory.show', $record->profile) : null, shouldOpenInNewTab: true)

@@ -23,7 +23,7 @@ class ListUsers extends ListRecords
                 ->label('Exporter en CSV')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
-                ->authorize(fn (): bool => Permissions::allows('members', 'export'))
+                ->authorize(fn (): bool => Permissions::allows('export'))
                 ->tooltip('Exporte les membres de la liste affichée (onglet, recherche et filtres compris).')
                 ->action(fn () => MembersCsvExport::download($this->getFilteredSortedTableQuery() ?? User::query())),
         ];

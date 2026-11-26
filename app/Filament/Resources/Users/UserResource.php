@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Users;
 
-use App\Filament\Concerns\AuthorizesBySection;
+use App\Filament\Concerns\AuthorizesByAbility;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Pages\ViewUser;
@@ -19,7 +19,7 @@ use UnitEnum;
 
 class UserResource extends Resource
 {
-    use AuthorizesBySection;
+    use AuthorizesByAbility;
 
     protected static ?string $model = User::class;
 
@@ -36,11 +36,6 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'email';
-
-    public static function permissionSection(): string
-    {
-        return 'members';
-    }
 
     public static function form(Schema $schema): Schema
     {

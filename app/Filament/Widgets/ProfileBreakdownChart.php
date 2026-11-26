@@ -22,7 +22,7 @@ abstract class ProfileBreakdownChart extends ChartWidget
 
     public static function canView(): bool
     {
-        return Permissions::allows('members', 'view');
+        return Permissions::allows('view');
     }
 
     abstract protected function column(): string;

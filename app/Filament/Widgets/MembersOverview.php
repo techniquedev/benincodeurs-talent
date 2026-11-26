@@ -16,7 +16,7 @@ class MembersOverview extends StatsOverviewWidget
 
     public static function canView(): bool
     {
-        return Permissions::allows('members', 'view');
+        return Permissions::allows('view');
     }
 
     protected function getStats(): array

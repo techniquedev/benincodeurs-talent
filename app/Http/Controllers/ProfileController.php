@@ -8,7 +8,7 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /** Fiche d'un membre dans l'annuaire, réservée à l'équipe (permission « directory.view », voir routes). */
+    /** Fiche d'un membre dans l'annuaire, réservée à l'équipe (droit « Voir » de l'admin, voir routes). */
     public function show(Request $request, Profile $profile): View
     {
         return $this->render($profile, $profile->user_id === $request->user()->id);
