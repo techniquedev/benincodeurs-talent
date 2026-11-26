@@ -15,6 +15,9 @@ class ViewUser extends ViewRecord
     {
         return [
             EditAction::make()->label('Modifier'),
+            UsersTable::verifyEmailAction(),
+            UsersTable::featureAction(),
+            UsersTable::viewInDirectoryAction(),
             UsersTable::reactivateAction(),
             UsersTable::suspendAction(),
             UsersTable::deleteAction(),

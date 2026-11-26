@@ -2,7 +2,8 @@
  * Petits comportements du site, sans bibliothèque :
  * - menu mobile (délégation d'événements, compatible avec wire:navigate) ;
  * - repli des images absentes (le fond du conteneur reste visible) ;
- * - barre de navigation de l'accueil et défilement narratif (progression du défilement).
+ * - barre de navigation de l'accueil et défilement narratif (progression du défilement sur ordinateur,
+ *   IntersectionObserver sur mobile).
  */
 
 function setMenuOpen(menu, open) {
@@ -124,10 +125,43 @@ function initStory() {
     update();
 }
 
+/*
+ * Défilement narratif sur mobile : la photo reste collée en haut, les cartes défilent dessous.
+ * La carte qui traverse la bande située aux deux tiers de l'écran devient active : photo (fondu) et point de progression.
+ */
+function initMobileStory() {
+    const story = document.querySelector('[data-story-mobile]');
+    if (!story || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    const cards = [...story.querySelectorAll('[data-story-card]')];
+    const photos = [...story.querySelectorAll('[data-story-photo]')];
+    const dots = [...story.querySelectorAll('[data-story-dot]')];
+
+    const activate = (index) => {
+        photos.forEach((photo, i) => photo.classList.toggle('is-active', i === index));
+        dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
+        cards.forEach((card, i) => card.classList.toggle('is-active', i === index));
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                activate(cards.indexOf(entry.target));
+            }
+        });
+    }, { rootMargin: '-65% 0px -30% 0px' });
+
+    cards.forEach((card) => observer.observe(card));
+    activate(0);
+}
+
 function init() {
     checkImages();
     initSiteHeader();
     initStory();
+    initMobileStory();
 }
 
 if (document.readyState === 'loading') {

@@ -32,12 +32,13 @@ return [
     // Nombre de profils par page dans l'annuaire.
     'directory_per_page' => 12,
 
-    // Pied de page : aide WhatsApp (lien wa.me ou groupe) et réseaux sociaux. Vide : lien masqué.
-    'support_whatsapp_url' => env('TALENT_SUPPORT_WHATSAPP_URL'),
+    // Contact WhatsApp de Bénin Codeurs (barre de navigation, pied de page) et réseaux sociaux. Vide : lien masqué.
+    'support_whatsapp_url' => env('TALENT_SUPPORT_WHATSAPP_URL') ?: 'https://wa.me/2290159273491',
+    'support_whatsapp_number' => env('TALENT_SUPPORT_WHATSAPP_NUMBER') ?: '+229 01 59 27 34 91',
     'social' => [
-        'linkedin' => env('TALENT_SOCIAL_LINKEDIN'),
-        'facebook' => env('TALENT_SOCIAL_FACEBOOK'),
-        'instagram' => env('TALENT_SOCIAL_INSTAGRAM'),
+        'facebook' => env('TALENT_SOCIAL_FACEBOOK') ?: 'https://facebook.com/benincodeurs/',
+        'instagram' => env('TALENT_SOCIAL_INSTAGRAM') ?: 'https://www.instagram.com/benincodeurs/',
+        'linkedin' => env('TALENT_SOCIAL_LINKEDIN') ?: 'https://www.linkedin.com/company/benincodeurs/',
         'youtube' => env('TALENT_SOCIAL_YOUTUBE'),
         'x' => env('TALENT_SOCIAL_X'),
     ],

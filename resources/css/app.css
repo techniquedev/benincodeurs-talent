@@ -149,10 +149,37 @@
     opacity: 0.5;
 }
 
+/* Mobile : points de progression et carte active. */
+.story-dot {
+    width: 0.375rem;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+.story-dot.is-active {
+    width: 1.5rem;
+    background-color: var(--color-lime);
+}
+[data-story-card] {
+    transition: opacity 0.4s ease, border-color 0.4s ease;
+}
+.js [data-story-card]:not(.is-active) {
+    opacity: 0.55;
+}
+[data-story-card].is-active {
+    border-color: color-mix(in oklab, var(--color-lime) 50%, transparent);
+}
+
+/* Questions fréquentes : bordure violette sur la question ouverte. */
+.faq-item[open] {
+    border-color: color-mix(in oklab, var(--color-violet) 35%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .site-header,
     .story-photo,
-    .story-step {
+    .story-step,
+    .story-dot,
+    [data-story-card],
+    .faq-item summary span {
         transition: none;
         transform: none;
     }

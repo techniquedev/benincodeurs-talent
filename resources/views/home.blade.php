@@ -10,6 +10,12 @@
         ['feature-3.jpg', 'users', 'Collaborer', 'Missions, emploi, projets communs : chacun indique sa disponibilité.'],
         ['feature-4.jpg', 'lock-closed', 'Entre membres', "L'annuaire est réservé aux membres validés. Tu choisis d'afficher ou non ton WhatsApp, ton e-mail et ton entreprise."],
     ];
+    $faq = [
+        ['Qui peut accéder au Talent Board ?', "Les membres de la communauté VIP Bénin Codeurs. À l'inscription, ton e-mail d'adhésion est vérifié automatiquement, puis tu confirmes ton adresse avec un code. L'inscription est gratuite."],
+        ['Qui voit mes coordonnées ?', "Seuls les membres connectés et validés voient l'annuaire. Ton WhatsApp, ton e-mail et ton entreprise ne s'affichent que si tu choisis de les montrer, et tu peux changer d'avis à tout moment."],
+        ['Comment modifier mon profil ?', "Connecte-toi, puis ouvre « Mon profil » depuis ton espace. Chaque étape est enregistrée au fur et à mesure : tu peux revenir compléter ou corriger tes informations quand tu veux."],
+        ['Comment supprimer mon compte ?', "Écris à l'équipe Bénin Codeurs sur WhatsApp. Ton compte, ton profil, tes réalisations et tes images sont alors supprimés définitivement."],
+    ];
     $image = fn (string $file): string => asset('images/home/'.$file);
 @endphp
 <x-layouts::public :overlay-header="true" description="Le Talent Board réunit les membres de la communauté VIP Bénin Codeurs : profils, compétences, réalisations et annuaire.">
@@ -33,7 +39,14 @@
                     <a href="{{ route('register') }}" class="btn-lime px-6 py-3 text-base">Créer mon profil @svg('heroicon-m-arrow-right', 'size-4', ['aria-hidden' => 'true'])</a>
                     <a href="{{ route('login') }}" class="btn-ghost-light px-6 py-3 text-base">J'ai déjà un compte</a>
                 </div>
-                <p class="mt-5 text-xs text-white/70">Accès réservé aux membres VIP : ton adhésion est vérifiée dès l'inscription.</p>
+                <ul class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/80" aria-label="En bref">
+                    @foreach (['Réservé aux membres VIP', 'Gratuit', 'Profils vérifiés'] as $trustPoint)
+                        <li class="inline-flex items-center gap-1.5">
+                            @svg('heroicon-m-check-circle', 'size-4 text-lime', ['aria-hidden' => 'true'])
+                            {{ $trustPoint }}
+                        </li>
+                    @endforeach
+                </ul>
             </div>
 
             <div class="relative mx-auto w-full max-w-md md:max-w-none">
@@ -72,24 +85,42 @@
 
     {{-- Pensé pour la communauté : sombre --}}
     <section id="communaute" class="scroll-mt-16 bg-brand text-white" aria-labelledby="why">
-        {{-- Mobile et tablette : titre puis pile de cartes. --}}
-        <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:hidden">
-            <p class="eyebrow-dark">Pourquoi le Talent Board</p>
-            <h2 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Pensé pour la communauté</h2>
-            <div class="mt-10 grid gap-5 sm:grid-cols-2">
-                @foreach ($features as [$featureImage, $icon, $featureTitle, $featureText])
-                    <article class="overflow-hidden rounded-card border border-white/10 bg-night/50">
-                        <div class="media-fallback aspect-[4/3]">
-                            <img src="{{ $image($featureImage) }}" alt="" width="1200" height="900" loading="lazy" decoding="async" data-fallback class="size-full object-cover">
-                        </div>
-                        <div class="p-5">
-                            <span class="grid size-9 place-items-center rounded-lg bg-white/10 text-lime" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-5')</span>
-                            <h3 class="mt-3 font-semibold">{{ $featureTitle }}</h3>
-                            <p class="mt-1 text-sm text-white/75">{{ $featureText }}</p>
-                        </div>
-                    </article>
-                @endforeach
+        {{--
+            Mobile et tablette : la photo reste collée en haut (environ 40 % de l'écran) et les 4 cartes défilent dessous.
+            La carte au centre de l'écran choisit la photo affichée (fondu) et le point actif (IntersectionObserver, app.js).
+        --}}
+        <div data-story-mobile class="pt-16 pb-16 sm:pt-24 lg:hidden">
+            <div class="mx-auto max-w-2xl px-4 sm:px-6">
+                <p class="eyebrow-dark">Pourquoi le Talent Board</p>
+                <h2 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Pensé pour la communauté</h2>
             </div>
+
+            <div class="sticky top-16 z-10 mt-8 bg-brand px-4 pt-3 pb-4 sm:px-6">
+                <div class="media-fallback relative mx-auto h-[40svh] max-w-2xl overflow-hidden rounded-card ring-1 ring-white/15">
+                    @foreach ($features as $i => [$featureImage, $icon, $featureTitle])
+                        <img data-story-photo src="{{ $image($featureImage) }}" alt="{{ $featureTitle }}" width="1200" height="900" loading="lazy" decoding="async" data-fallback
+                             @class(['story-photo absolute inset-0 size-full object-cover', 'is-active' => $i === 0])>
+                    @endforeach
+                </div>
+                <ol class="mt-3 flex justify-center gap-2" aria-hidden="true">
+                    @foreach ($features as $i => $feature)
+                        <li data-story-dot @class(['story-dot h-1.5 rounded-full bg-white/30', 'is-active' => $i === 0])></li>
+                    @endforeach
+                </ol>
+            </div>
+
+            <ol class="mx-auto mt-4 max-w-2xl space-y-4 px-4 pb-[20svh] sm:px-6">
+                @foreach ($features as $i => [$featureImage, $icon, $featureTitle, $featureText])
+                    <li data-story-card class="rounded-card border border-white/10 bg-night/50 p-5">
+                        <div class="flex items-center gap-3">
+                            <span class="grid size-9 place-items-center rounded-lg bg-white/10 text-lime" aria-hidden="true">@svg('heroicon-o-'.$icon, 'size-5')</span>
+                            <span class="text-xs font-semibold tracking-wider text-white/70 uppercase">{{ sprintf('%02d', $i + 1) }} / {{ sprintf('%02d', count($features)) }}</span>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold">{{ $featureTitle }}</h3>
+                        <p class="mt-1 text-white/75">{{ $featureText }}</p>
+                    </li>
+                @endforeach
+            </ol>
         </div>
 
         {{--
@@ -127,12 +158,33 @@
         </div>
     </section>
 
-    {{-- Appel final : carte violette, photo assombrie, sur fond clair --}}
+    {{-- Questions fréquentes : clair, accordéon natif (fonctionne sans JavaScript). --}}
+    <section id="faq" class="scroll-mt-16 bg-paper pt-16 sm:pt-24" aria-labelledby="faq-title">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6">
+            <p class="eyebrow">Questions fréquentes</p>
+            <h2 id="faq-title" class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Tu te demandes peut-être…</h2>
+            <div class="mt-8 space-y-3">
+                @foreach ($faq as $i => [$question, $answer])
+                    <details name="faq" class="faq-item group rounded-card border border-line bg-white" @if ($i === 0) open @endif>
+                        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                            {{ $question }}
+                            <span class="grid size-8 shrink-0 place-items-center rounded-full bg-violet/10 text-violet transition group-open:rotate-45" aria-hidden="true">
+                                @svg('heroicon-m-plus', 'size-4')
+                            </span>
+                        </summary>
+                        <p class="px-5 pb-5 text-muted">{{ $answer }}</p>
+                    </details>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- Appel final : photo sous un voile violet nuit (night → brand, ~85 %), sur fond clair --}}
     <section class="bg-paper px-4 py-16 sm:px-6 sm:py-24">
-        <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-violet px-6 py-16 text-center text-white sm:px-12 sm:py-24">
+        <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-night px-6 py-16 text-center text-white sm:px-12 sm:py-24">
             <img src="{{ $image('cta.jpg') }}" alt="" width="1200" height="514" loading="lazy" decoding="async" data-fallback
                  class="absolute inset-0 -z-20 size-full object-cover">
-            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-t from-night/90 via-violet/85 to-violet/75"></div>
+            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-br from-night/85 to-brand/85"></div>
             <h2 class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">Prêt à rejoindre l'annuaire ?</h2>
             <p class="mx-auto mt-3 max-w-xl text-white/85">Crée ton compte en une minute, puis complète ton profil à ton rythme.</p>
             <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

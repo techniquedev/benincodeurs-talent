@@ -26,6 +26,16 @@ enum UserStatus: string
         };
     }
 
+    /** Icône Heroicon du badge de statut (admin), pour un statut lisible sans la couleur. */
+    public function icon(): string
+    {
+        return match ($this) {
+            self::Pending => 'heroicon-m-clock',
+            self::Approved => 'heroicon-m-check-circle',
+            self::Suspended => 'heroicon-m-no-symbol',
+        };
+    }
+
     /** @return array<string, string> */
     public static function options(): array
     {

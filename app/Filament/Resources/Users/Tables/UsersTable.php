@@ -47,10 +47,11 @@ class UsersTable
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(['last_name', 'first_name']),
                 TextColumn::make('email')->label('E-mail')->searchable()->copyable()->toggleable(),
-                TextColumn::make('whatsapp')->label('WhatsApp')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('whatsapp')->label('WhatsApp')->searchable()->copyable()->placeholder('—')->toggleable(),
                 TextColumn::make('status')->label('Statut')->badge()
                     ->formatStateUsing(fn (UserStatus $state) => $state->label())
                     ->color(fn (UserStatus $state) => $state->color())
+                    ->icon(fn (UserStatus $state) => $state->icon())
                     ->sortable(),
                 TextColumn::make('profile.profession')->label('Métier')
                     ->formatStateUsing(fn (?Profession $state) => $state?->label())
@@ -61,7 +62,7 @@ class UsersTable
                 TextColumn::make('profile.availability')->label('Disponibilité')->badge()
                     ->formatStateUsing(fn (?Availability $state) => $state?->label())
                     ->color(fn (?Availability $state) => $state?->color() ?? 'gray')
-                    ->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
+                    ->placeholder('—')->toggleable(),
                 TextColumn::make('profile.city')->label('Ville')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('profile.completion')->label('Profil')
                     ->state(fn (User $record) => $record->profile?->completion ?? 0)
@@ -92,6 +93,10 @@ class UsersTable
                         fn (Builder $q, string $value) => $q->whereHas('profile', fn (Builder $p) => $p->where('availability', $value)))),
                 Filter::make('listed')->label("Visibles dans l'annuaire")->toggle()
                     ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->listed())),
+                Filter::make('incomplete')->label('Profil incomplet')->toggle()
+                    ->query(fn (Builder $query) => $query->where(fn (Builder $q) => $q
+                        ->whereDoesntHave('profile')
+                        ->orWhereHas('profile', fn (Builder $p) => $p->where('completion', '<', Profile::minCompletion())))),
                 Filter::make('featured')->label('À la une')->toggle()
                     ->query(fn (Builder $query) => $query->whereHas('profile', fn (Builder $p) => $p->where('is_featured', true))),
                 TernaryFilter::make('email_verified_at')->label('E-mail vérifié')->nullable(),
@@ -114,8 +119,79 @@ class UsersTable
                         ->label('Exporter la sélection (CSV)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(fn (Collection $records) => MembersCsvExport::download(User::query()->whereKey($records->modelKeys()))),
+                    self::bulkFeatureAction(true),
+                    self::bulkFeatureAction(false),
+                    BulkAction::make('reactivateSelected')
+                        ->label('Réactiver la sélection')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Réactiver les comptes sélectionnés ?')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $count = self::members($records)->reject(fn (User $user) => $user->isApproved())
+                                ->each(fn (User $user) => $user->reactivate())->count();
+                            Notification::make()->title($count.' compte(s) réactivé(s).')->success()->send();
+                        }),
+                    BulkAction::make('suspendSelected')
+                        ->label('Suspendre la sélection')
+                        ->icon('heroicon-o-no-symbol')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Suspendre les comptes sélectionnés ?')
+                        ->modalDescription('Les membres ne pourront plus accéder au Talent Board. Les administrateurs sélectionnés sont ignorés.')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $count = self::members($records)->reject(fn (User $user) => $user->isSuspended())
+                                ->each(fn (User $user) => $user->suspend())->count();
+                            Notification::make()->title($count.' compte(s) suspendu(s).')->warning()->send();
+                        }),
+                    BulkAction::make('deleteSelected')
+                        ->label('Supprimer la sélection')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Supprimer définitivement les comptes sélectionnés ?')
+                        ->modalDescription('Comptes, profils, réalisations et images (Cloudinary) seront supprimés. Les administrateurs sélectionnés sont ignorés. Action irréversible.')
+                        ->modalSubmitActionLabel('Supprimer définitivement')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $count = self::members($records)->each(fn (User $user) => $user->deleteWithMedia())->count();
+                            Notification::make()->title($count.' compte(s) supprimé(s).')->success()->send();
+                        }),
                 ]),
             ]);
+    }
+
+    /**
+     * Membres sélectionnés, sans les administrateurs (jamais suspendus ni supprimés en masse).
+     *
+     * @param  Collection<int, User>  $records
+     * @return Collection<int, User>
+     */
+    private static function members(Collection $records): Collection
+    {
+        return $records->reject(fn (User $user) => $user->is_admin);
+    }
+
+    /** Mettre en avant ou retirer de la une tous les membres sélectionnés. */
+    private static function bulkFeatureAction(bool $featured): BulkAction
+    {
+        return BulkAction::make($featured ? 'featureSelected' : 'unfeatureSelected')
+            ->label($featured ? 'Mettre en avant la sélection' : 'Retirer la sélection de la une')
+            ->icon($featured ? 'heroicon-s-star' : 'heroicon-o-star')
+            ->color('warning')
+            ->deselectRecordsAfterCompletion()
+            ->action(function (Collection $records) use ($featured) {
+                $count = self::members($records)
+                    ->each(fn (User $user) => $user->ensureProfile()->setFeatured($featured))
+                    ->count();
+
+                Notification::make()
+                    ->title($featured ? $count.' profil(s) mis en avant.' : $count.' profil(s) retiré(s) de la une.')
+                    ->success()
+                    ->send();
+            });
     }
 
     public static function reactivateAction(): Action

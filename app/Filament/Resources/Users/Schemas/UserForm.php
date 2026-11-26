@@ -13,6 +13,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class UserForm
@@ -41,7 +42,8 @@ class UserForm
                     ->schema([
                         TextEntry::make('status')->label('Statut')->badge()
                             ->formatStateUsing(fn (UserStatus $state) => $state->label())
-                            ->color(fn (UserStatus $state) => $state->color()),
+                            ->color(fn (UserStatus $state) => $state->color())
+                            ->icon(fn (UserStatus $state) => $state->icon()),
                         TextEntry::make('email_verified_at')->label('E-mail vérifié le')->dateTime('d/m/Y H:i')->placeholder('Non vérifié'),
                         TextEntry::make('created_at')->label('Inscrit le')->dateTime('d/m/Y H:i'),
                         TextEntry::make('approved_at')->label('Validé le')->dateTime('d/m/Y H:i')->placeholder('—'),
@@ -115,6 +117,9 @@ class UserForm
                     ->columnSpanFull(),
                 TextEntry::make('profile_links')->label('Liens')
                     ->state(fn (User $record) => array_values($profile($record)?->links() ?? []))
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString(
+                        '<a href="'.e($state).'" target="_blank" rel="noopener noreferrer" class="text-primary-600 underline">'.e($state).'</a>'
+                    ))
                     ->listWithLineBreaks()
                     ->placeholder('Aucun')
                     ->columnSpanFull(),

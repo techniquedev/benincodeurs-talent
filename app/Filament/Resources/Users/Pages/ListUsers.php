@@ -34,6 +34,8 @@ class ListUsers extends ListRecords
             'all' => Tab::make('Tous'),
             'approved' => Tab::make('Validés')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', UserStatus::Approved)),
+            'pending' => Tab::make('En attente')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', UserStatus::Pending)),
             'suspended' => Tab::make('Suspendus')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', UserStatus::Suspended)),
         ];
