@@ -7,10 +7,10 @@
         <h2 class="mt-4 text-2xl font-semibold tracking-tight text-ink">Ton compte est en cours de validation par l'équipe</h2>
         <p class="mt-3 text-ink">
             Merci {{ $user->first_name }} ! L'équipe Bénin Codeurs vérifie que tu fais partie de la communauté VIP.
-            Tu recevras un e-mail à <strong>{{ $user->email }}</strong> dès que ton compte sera validé.
+            Tu recevras un e-mail à <strong class="break-all">{{ $user->email }}</strong> dès que ton compte sera validé.
         </p>
         <p class="mt-3 text-sm text-muted">En attendant, tu peux préparer ton profil depuis ton espace.</p>
-        <a href="{{ route('dashboard') }}" class="btn-secondary mt-6">Retour à mon espace</a>
+        <a href="{{ route('dashboard') }}" class="btn-secondary mt-6 w-full sm:w-auto">Retour à mon espace</a>
     </div>
     </div>
 </x-layouts::app>

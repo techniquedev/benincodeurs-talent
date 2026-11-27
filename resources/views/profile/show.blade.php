@@ -24,7 +24,7 @@
                         <span @class(['badge', $profile->availability->badgeClasses() => $profile->availability === \App\Enums\Availability::OpenToMissions, 'bg-white/10 text-white ring-1 ring-white/20' => $profile->availability !== \App\Enums\Availability::OpenToMissions])>{{ $profile->availability->label() }}</span>
                     @endif
                 </div>
-                <h1 @class(['text-2xl font-semibold tracking-tight text-white sm:text-3xl', 'mt-2' => $profile->is_featured || $profile->availability])>{{ $user->name }}</h1>
+                <h1 @class(['text-2xl font-semibold tracking-tight break-words text-white sm:text-3xl', 'mt-2' => $profile->is_featured || $profile->availability])>{{ $user->name }}</h1>
                 @if ($profile->headline)
                     <p class="mt-1 text-base text-white/80 sm:text-lg">{{ $profile->headline }}</p>
                 @endif
@@ -60,7 +60,7 @@
     <div class="page-container">
     @if ($isOwner)
         <div class="mb-6 rounded-card border border-line border-l-4 border-l-violet bg-white p-4 sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5">
-            <div>
+            <div class="min-w-0">
                 <p class="font-semibold text-ink">Aperçu : voici ton profil tel que le voit l'équipe Bénin Codeurs.</p>
                 <p class="mt-0.5 text-sm text-ink">
                     Seule l'équipe le consulte, pour proposer des missions et des opportunités.
@@ -73,8 +73,8 @@
         </div>
     @endif
 
-    <div class="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
-        <div class="space-y-6">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <div class="min-w-0 space-y-6">
             @if ($profile->bio)
                 <section class="card">
                     <h2 class="section-title">Présentation</h2>
@@ -96,7 +96,7 @@
                         @foreach ($skillsByCategory as $categoryName => $categorySkills)
                             <div>
                                 <h3 class="text-xs font-semibold uppercase tracking-wider text-muted">{{ $categoryName }}</h3>
-                                <ul class="mt-2 grid gap-2 sm:grid-cols-2">
+                                <ul class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                                     @foreach ($categorySkills as $skill)
                                         @php $skillLevel = SkillLevel::tryFrom($skill->pivot->level); @endphp
                                         <li @class([
@@ -126,16 +126,16 @@
             @if ($profile->projects->isNotEmpty())
                 <section class="card">
                     <h2 class="section-title">Réalisations</h2>
-                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         @foreach ($profile->projects as $project)
-                            <article class="flex flex-col overflow-hidden rounded-xl border border-line">
+                            <article class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-line">
                                 @if ($project->image_path)
                                     <img src="{{ $project->imageUrl(800, 500) }}" alt="Visuel du projet {{ $project->title }}" width="800" height="500" loading="lazy" decoding="async" class="aspect-[16/10] w-full bg-paper object-cover">
                                 @else
                                     <div class="grid aspect-[16/10] place-items-center media-fallback text-3xl font-semibold text-violet/60" aria-hidden="true">{{ mb_strtoupper(mb_substr($project->title, 0, 1)) }}</div>
                                 @endif
                                 <div class="flex flex-1 flex-col p-4">
-                                    <h3 class="font-semibold text-ink">{{ $project->title }}</h3>
+                                    <h3 class="font-semibold break-words text-ink">{{ $project->title }}</h3>
                                     @if ($project->description)
                                         <p class="mt-1 whitespace-pre-line text-sm text-muted">{{ $project->description }}</p>
                                     @endif
@@ -160,7 +160,7 @@
             @endif
         </div>
 
-        <aside class="space-y-6 lg:sticky lg:top-24">
+        <aside class="min-w-0 space-y-6 lg:sticky lg:top-24">
             <section class="card">
                 <h2 class="section-title">Contact</h2>
                 <div class="mt-4 space-y-3">
@@ -170,7 +170,7 @@
                             Écrire sur WhatsApp
                         </a>
                     @endif
-                    <a href="mailto:{{ $user->email }}" class="btn-secondary w-full break-all text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) {{ $user->email }}</a>
+                    <a href="mailto:{{ $user->email }}" class="btn-secondary w-full text-sm">@svg('heroicon-m-envelope', 'size-4 shrink-0', ['aria-hidden' => 'true']) <span class="min-w-0 break-all">{{ $user->email }}</span></a>
                 </div>
             </section>
 

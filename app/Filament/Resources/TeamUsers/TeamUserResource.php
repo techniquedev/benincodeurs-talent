@@ -113,11 +113,16 @@ class TeamUserResource extends Resource
                         Text::make('Super-admin : tous les droits, y compris la gestion des utilisateurs. Ce compte ne peut pas être supprimé.')
                             ->visible(fn (?User $record): bool => (bool) $record?->isSuperAdmin()),
                         CheckboxList::make('abilities')->hiddenLabel()
+                            ->validationAttribute('droits')
                             ->options(Permissions::ABILITIES)
                             ->default([Permissions::REQUIRED])
                             ->disableOptionWhen(fn (string $value): bool => $value === Permissions::REQUIRED)
+                            // Filament retire les options verrouillées de la règle « in » : « Voir », coché d'office, y est réautorisé.
+                            ->in(array_keys(Permissions::ABILITIES))
+                            ->validationMessages(['*.in' => 'Droit inconnu : cochez uniquement Voir, Créer, Modifier, Supprimer ou Exporter.'])
+                            ->dehydrateStateUsing(fn (?array $state): array => array_values(array_unique([Permissions::REQUIRED, ...($state ?? [])])))
                             ->descriptions([Permissions::REQUIRED => 'Obligatoire'])
-                            ->columns(5)
+                            ->columns(['default' => 2, 'sm' => 3, 'lg' => 5])
                             ->gridDirection('row')
                             ->afterStateHydrated(function (CheckboxList $component, ?User $record): void {
                                 if ($record) {

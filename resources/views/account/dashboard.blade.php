@@ -11,7 +11,7 @@
             @include('account.partials.pending-message')
         @endif
 
-        <div class="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
             {{-- Profil et jauge de complétion --}}
             <section class="card">
                 <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -29,12 +29,12 @@
                 </div>
 
                 @if ($missing->isNotEmpty())
-                    <ul class="mt-5 grid gap-2 sm:grid-cols-2">
+                    <ul class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
                         @foreach ($missing as $item)
                             <li>
                                 <a href="{{ route('profile.edit', ['etape' => $item['step']]) }}" class="flex items-center justify-between gap-2 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink hover:bg-violet/5">
-                                    <span>{{ $item['label'] }}</span>
-                                    <span class="text-xs font-bold text-violet">+{{ $item['weight'] }}&nbsp;%</span>
+                                    <span class="min-w-0">{{ $item['label'] }}</span>
+                                    <span class="shrink-0 text-xs font-bold text-violet">+{{ $item['weight'] }}&nbsp;%</span>
                                 </a>
                             </li>
                         @endforeach
@@ -49,7 +49,7 @@
                 </div>
             </section>
 
-            <div class="space-y-6">
+            <div class="min-w-0 space-y-6">
                 <section class="card">
                     <span class="grid size-10 place-items-center rounded-lg bg-violet/10 text-violet" aria-hidden="true">@svg('heroicon-o-light-bulb', 'size-5')</span>
                     <h2 class="section-title mt-4">À quoi sert ton profil ?</h2>
@@ -74,7 +74,7 @@
                         </div>
                         <div class="flex justify-between gap-4">
                             <dt class="text-muted">E-mail</dt>
-                            <dd class="min-w-0 truncate font-medium">{{ $user->email }}</dd>
+                            <dd class="min-w-0 truncate font-medium" title="{{ $user->email }}">{{ $user->email }}</dd>
                         </div>
                         @if ($user->whatsapp)
                             <div class="flex justify-between gap-4">

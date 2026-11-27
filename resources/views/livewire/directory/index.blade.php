@@ -10,7 +10,7 @@
      x-on:keydown.escape.window="filtersOpen = false" x-on:livewire:navigating.window="filtersOpen = false">
     <x-page-header title="Annuaire des talents" description="Réservé à l'équipe Bénin Codeurs : trouve un membre par métier, compétence, niveau ou ville pour lui proposer une mission ou une opportunité.">
     <div class="mt-6 flex gap-2">
-        <div class="relative flex-1">
+        <div class="relative min-w-0 flex-1">
             <label for="directory-search" class="sr-only">Rechercher</label>
             @svg('heroicon-m-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-muted', ['aria-hidden' => 'true'])
             <input wire:model.live.debounce.400ms="search" id="directory-search" type="search" autocomplete="off"
@@ -25,7 +25,7 @@
     </div>
     </x-page-header>
 
-    <div class="page-container lg:grid lg:grid-cols-[15rem_1fr] lg:items-start lg:gap-10">
+    <div class="page-container lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-10">
         {{-- Filtres : colonne sur ordinateur, panneau coulissant sur mobile et tablette. --}}
         <div x-show="filtersOpen" x-transition.opacity x-cloak x-on:click="filtersOpen = false" class="fixed inset-0 z-40 bg-night/60 lg:hidden" aria-hidden="true"></div>
         <aside id="directory-filters" aria-label="Filtres"
@@ -108,7 +108,7 @@
         </aside>
 
         <div class="min-w-0">
-            <div class="flex items-center justify-between gap-3" id="resultats">
+            <div class="flex flex-wrap items-center justify-between gap-3" id="resultats">
                 <p class="text-sm text-muted" aria-live="polite">
                     <strong class="text-ink">{{ $profiles->total() }}</strong> {{ $profiles->total() > 1 ? 'membres' : 'membre' }}
                 </p>
@@ -132,11 +132,11 @@
                         @endif
                     </p>
                     @if ($filterCount > 0 || $search !== '')
-                        <button type="button" wire:click="resetFilters" class="btn-secondary mt-5">Effacer les filtres</button>
+                        <button type="button" wire:click="resetFilters" class="btn-secondary mt-5 w-full sm:w-auto">Effacer les filtres</button>
                     @endif
                 </div>
             @else
-                <div class="mt-4 grid gap-4 transition-opacity sm:grid-cols-2 xl:grid-cols-3 xl:gap-5" wire:loading.class="opacity-60">
+                <div class="mt-4 grid grid-cols-1 gap-4 transition-opacity sm:grid-cols-2 xl:grid-cols-3 xl:gap-5" wire:loading.class="opacity-60">
                     @foreach ($profiles as $profile)
                         <x-profile-card :profile="$profile" wire:key="profile-{{ $profile->id }}" />
                     @endforeach

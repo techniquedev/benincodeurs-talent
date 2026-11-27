@@ -14,7 +14,7 @@
         </div>
 
         <div>
-            <div class="flex items-baseline justify-between">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-3">
                 <label for="password" class="field-label">Mot de passe</label>
                 <a href="{{ route('password.request') }}" class="link text-sm" wire:navigate>Mot de passe oublié ?</a>
             </div>

@@ -8,14 +8,14 @@
 @endphp
 <footer {{ $attributes->merge(['class' => 'bg-night text-white']) }}>
     <div class="mx-auto max-w-6xl px-4 pt-12 pb-8 sm:px-6 lg:pt-16">
-        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr]">
+        <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
             <div class="sm:col-span-2 lg:col-span-1">
                 <x-logo />
                 <p class="mt-4 max-w-xs text-sm text-white/70">
                     Le Talent Board de la communauté VIP Bénin Codeurs : ton profil pour te faire connaître de l'équipe.
                 </p>
                 @if ($activeSocialNetworks->isNotEmpty())
-                    <ul class="mt-5 flex items-center gap-2" aria-label="Réseaux sociaux de Bénin Codeurs">
+                    <ul class="mt-5 flex flex-wrap items-center gap-2" aria-label="Réseaux sociaux de Bénin Codeurs">
                         @foreach ($activeSocialNetworks as $key => [$networkName, $iconPath])
                             <li>
                                 <a href="{{ config("talent.social.$key") }}" target="_blank" rel="noopener noreferrer"
@@ -62,7 +62,7 @@
                         <li>
                             <a href="{{ $supportWhatsappUrl }}" target="_blank" rel="noopener noreferrer" class="{{ $columnLink }} inline-flex items-center gap-2">
                                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0"><path d="{{ \App\Support\SocialIcons::WHATSAPP }}"/></svg>
-                                <span>WhatsApp{{ filled($supportWhatsappNumber) ? ' · '.$supportWhatsappNumber : '' }}</span>
+                                <span class="min-w-0">WhatsApp{{ filled($supportWhatsappNumber) ? ' · '.$supportWhatsappNumber : '' }}</span>
                             </a>
                         </li>
                     @endif

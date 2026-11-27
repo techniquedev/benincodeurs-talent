@@ -22,13 +22,13 @@
     {{-- Héros : sombre, la barre de navigation est posée dessus (transparente). --}}
     <section class="relative isolate overflow-hidden bg-linear-to-br from-night to-brand text-white">
         <div aria-hidden="true" class="glow pointer-events-none absolute inset-0 -z-10"></div>
-        <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-24 pb-14 sm:px-6 sm:pt-28 md:grid-cols-[1.05fr_1fr] md:gap-12 lg:gap-16 lg:pt-36 lg:pb-24">
-            <div>
+        <div class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-24 pb-14 sm:px-6 sm:pt-28 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] md:gap-12 lg:gap-16 lg:pt-36 lg:pb-24">
+            <div class="min-w-0">
                 <p class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/90">
                     <span aria-hidden="true" class="size-2 rounded-full bg-lime"></span>
                     Communauté VIP Bénin Codeurs
                 </p>
-                <h1 class="mt-5 text-4xl leading-[1.08] font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+                <h1 class="mt-5 text-[2rem] leading-[1.08] min-[400px]:text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
                     Fais connaître tes talents <span class="text-lime">à l'équipe Bénin Codeurs.</span>
                 </h1>
                 <p class="mt-5 max-w-xl text-base text-white/80 sm:text-lg">
@@ -65,9 +65,9 @@
                 <p class="eyebrow">En trois étapes</p>
                 <h2 id="how" class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Comment ça marche</h2>
             </div>
-            <ol class="mt-10 grid gap-5 md:grid-cols-3">
+            <ol class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
                 @foreach ($steps as $i => [$stepImage, $stepTitle, $stepText])
-                    <li class="flex flex-col overflow-hidden rounded-card border border-line bg-white">
+                    <li class="flex min-w-0 flex-col overflow-hidden rounded-card border border-line bg-white">
                         <div class="media-fallback relative aspect-[2/1]">
                             <img src="{{ $image($stepImage) }}" alt="" width="1200" height="600" loading="lazy" decoding="async" data-fallback
                                  class="absolute inset-0 size-full object-cover">
@@ -162,17 +162,17 @@
     <section id="faq" class="scroll-mt-16 bg-paper pt-16 sm:pt-24" aria-labelledby="faq-title">
         <div class="mx-auto max-w-3xl px-4 sm:px-6">
             <p class="eyebrow">Questions fréquentes</p>
-            <h2 id="faq-title" class="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">Tu te demandes peut-être…</h2>
+            <h2 id="faq-title" class="mt-2 text-2xl min-[400px]:text-3xl font-bold tracking-tight text-ink sm:text-4xl">Tu te demandes peut-être…</h2>
             <div class="mt-8 space-y-3">
                 @foreach ($faq as $i => [$question, $answer])
                     <details name="faq" class="faq-item group rounded-card border border-line bg-white" @if ($i === 0) open @endif>
-                        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-semibold text-ink [&::-webkit-details-marker]:hidden">
-                            {{ $question }}
+                        <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 font-semibold text-ink sm:px-5 [&::-webkit-details-marker]:hidden">
+                            <span class="min-w-0">{{ $question }}</span>
                             <span class="grid size-8 shrink-0 place-items-center rounded-full bg-violet/10 text-violet transition group-open:rotate-45" aria-hidden="true">
                                 @svg('heroicon-m-plus', 'size-4')
                             </span>
                         </summary>
-                        <p class="px-5 pb-5 text-muted">{{ $answer }}</p>
+                        <p class="px-4 pb-5 text-muted sm:px-5">{{ $answer }}</p>
                     </details>
                 @endforeach
             </div>
@@ -181,7 +181,7 @@
 
     {{-- Appel final : photo sous un voile violet nuit (night → brand, ~85 %), sur fond clair --}}
     <section class="bg-paper px-4 py-16 sm:px-6 sm:py-24">
-        <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-night px-6 py-16 text-center text-white sm:px-12 sm:py-24">
+        <div class="relative isolate mx-auto max-w-6xl overflow-hidden rounded-3xl bg-night px-5 py-14 text-center text-white sm:px-12 sm:py-24">
             <img src="{{ $image('cta.jpg') }}" alt="" width="1200" height="514" loading="lazy" decoding="async" data-fallback
                  class="absolute inset-0 -z-20 size-full object-cover">
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-br from-night/85 to-brand/85"></div>

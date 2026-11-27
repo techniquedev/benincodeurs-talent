@@ -11,14 +11,14 @@
                     <p class="eyebrow-dark">{{ $eyebrow }}</p>
                 @endif
                 @if ($title)
-                    <h1 @class(['text-2xl font-semibold tracking-tight text-balance sm:text-3xl', 'mt-1.5' => $eyebrow])>{{ $title }}</h1>
+                    <h1 @class(['text-2xl font-semibold tracking-tight text-balance break-words sm:text-3xl', 'mt-1.5' => $eyebrow])>{{ $title }}</h1>
                 @endif
                 @if ($description)
                     <p class="mt-1.5 max-w-2xl text-sm text-white/75 sm:text-base">{{ $description }}</p>
                 @endif
             </div>
             @isset($actions)
-                <div class="flex shrink-0 flex-col gap-2 sm:flex-row">{{ $actions }}</div>
+                <div class="flex flex-col gap-2 sm:shrink-0 sm:flex-row">{{ $actions }}</div>
             @endisset
         </div>
 

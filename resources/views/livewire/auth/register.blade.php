@@ -5,7 +5,7 @@
 <div class="card">
     {{-- Progression --}}
     <div>
-        <div class="flex items-center justify-between gap-3 text-sm">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
             <p class="font-semibold text-violet">Étape {{ $step }} sur {{ $totalSteps }}</p>
             <p class="text-muted">{{ $stepTitles[$step] }}</p>
         </div>
@@ -64,11 +64,11 @@
         <h1 class="mt-4 text-2xl font-semibold tracking-tight text-ink">Confirme ton e-mail</h1>
 
         @if ($emailVerified)
-            <p class="mt-1 text-sm text-muted">L'adresse <span class="font-semibold text-ink">{{ $email }}</span> est déjà confirmée.</p>
+            <p class="mt-1 text-sm text-muted">L'adresse <span class="font-semibold break-all text-ink">{{ $email }}</span> est déjà confirmée.</p>
             <button type="button" wire:click="continueToInformation" class="btn-primary mt-6 w-full">Continuer</button>
         @else
             <p class="mt-1 text-sm text-muted">
-                Nous avons envoyé un code à 6 chiffres à <span class="font-semibold text-ink">{{ $email }}</span>.
+                Nous avons envoyé un code à 6 chiffres à <span class="font-semibold break-all text-ink">{{ $email }}</span>.
                 Il est valable {{ config('talent.registration.code_ttl_minutes') }} minutes.
             </p>
 
@@ -80,7 +80,7 @@
                 <div>
                     <label for="code" class="field-label">Code de confirmation</label>
                     <input wire:model="code" id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"
-                           required autofocus class="field-input text-center text-2xl font-bold tracking-[0.5em]" placeholder="••••••">
+                           required autofocus class="field-input text-center text-2xl font-bold tracking-[0.3em] sm:tracking-[0.5em]" placeholder="••••••">
                     @error('code') <p class="field-error">{{ $message }}</p> @enderror
                 </div>
 
@@ -108,7 +108,7 @@
                 <input id="locked_email" type="email" value="{{ $email }}" disabled class="field-input cursor-not-allowed bg-line text-muted">
             </div>
 
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label for="first_name" class="field-label">Prénom</label>
                     <input wire:model="first_name" id="first_name" type="text" autocomplete="given-name" required class="field-input">

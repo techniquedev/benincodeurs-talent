@@ -18,12 +18,12 @@
         </x-slot:actions>
     </x-page-header>
 
-    <div class="page-container grid gap-6 lg:grid-cols-[17rem_1fr] lg:items-start">
+    <div class="page-container grid grid-cols-1 gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
         {{-- Colonne latérale : jauge, étapes, éléments manquants --}}
-        <aside class="space-y-4 lg:sticky lg:top-24">
+        <aside class="min-w-0 space-y-4 lg:sticky lg:top-24">
             <div class="card flex items-center gap-4 p-5 sm:p-5 lg:flex-col lg:text-center">
                 <x-completion-ring :value="$completion" :threshold="$minCompletion" class="size-20 lg:size-28" />
-                <div>
+                <div class="min-w-0">
                     <p class="font-semibold text-ink">Profil complet à {{ $completion }}&nbsp;%</p>
                     @if ($completion >= $minCompletion)
                         <p class="mt-1 text-sm text-muted">Ton profil est complet : l'équipe Bénin Codeurs connaît tes compétences.</p>
@@ -34,7 +34,7 @@
             </div>
 
             {{-- Étapes : onglets défilants sur mobile, liste sur grand écran --}}
-            <nav aria-label="Étapes du profil" class="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
+            <nav aria-label="Étapes du profil" class="-mx-4 overflow-x-auto overscroll-x-contain px-4 lg:mx-0 lg:overflow-visible lg:px-0">
                 <ol class="flex gap-2 pb-1 lg:flex-col lg:gap-0.5 lg:rounded-card lg:border lg:border-line lg:bg-white lg:p-2">
                     @foreach ($steps as $number => $label)
                         <li class="shrink-0">
@@ -78,7 +78,7 @@
         </aside>
 
         {{-- Formulaire de l'étape en cours --}}
-        <form wire:submit="saveAndContinue" class="card" novalidate>
+        <form wire:submit="saveAndContinue" class="card min-w-0" novalidate>
             <h2 class="text-xl font-semibold tracking-tight text-ink">{{ $steps[$step] }}</h2>
 
             {{-- 1. Identité --}}
@@ -88,13 +88,13 @@
                 <div class="mt-6 space-y-5">
                     <div>
                         <span class="field-label">Photo</span>
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center gap-4">
                             @if ($photo && method_exists($photo, 'isPreviewable') && $photo->isPreviewable())
                                 <img src="{{ $photo->temporaryUrl() }}" alt="Aperçu de la nouvelle photo" class="size-20 rounded-full object-cover sm:size-24">
                             @else
                                 <x-avatar :profile="$this->profile" :user="$user" size="size-20 sm:size-24" text="text-2xl" :pixels="200" />
                             @endif
-                            <div class="flex flex-col gap-2">
+                            <div class="flex min-w-0 flex-col gap-2">
                                 <label class="btn-secondary cursor-pointer text-sm">
                                     <input type="file" wire:model="photo" accept="image/jpeg,image/png,image/webp" class="sr-only">
                                     {{ $this->profile->photo_path || $photo ? 'Changer la photo' : 'Choisir une photo' }}
@@ -143,14 +143,14 @@
                 <div class="mt-6 space-y-6">
                     <fieldset>
                         <legend class="field-label">Métier principal</legend>
-                        <div class="grid gap-2 sm:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             @foreach (Profession::cases() as $option)
                                 <label @class([
                                     'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold transition',
                                     'border-violet bg-violet/5 text-ink ring-2 ring-violet/20' => $profession === $option->value,
                                     'border-line text-ink hover:border-violet/40' => $profession !== $option->value,
                                 ])>
-                                    <input type="radio" wire:model.live="profession" value="{{ $option->value }}" class="size-4 accent-violet">
+                                    <input type="radio" wire:model.live="profession" value="{{ $option->value }}" class="size-4 shrink-0 accent-violet">
                                     {{ $option->label() }}
                                 </label>
                             @endforeach
@@ -167,8 +167,8 @@
                                     'border-violet bg-violet/5 ring-2 ring-violet/20' => $level === $option->value,
                                     'border-line hover:border-violet/40' => $level !== $option->value,
                                 ])>
-                                    <input type="radio" wire:model.live="level" value="{{ $option->value }}" class="mt-1 size-4 accent-violet">
-                                    <span>
+                                    <input type="radio" wire:model.live="level" value="{{ $option->value }}" class="mt-1 size-4 shrink-0 accent-violet">
+                                    <span class="min-w-0">
                                         <span class="block text-sm font-semibold text-ink">{{ $option->label() }}</span>
                                         <span class="block text-sm text-muted">{{ $option->description() }}</span>
                                     </span>
@@ -178,7 +178,7 @@
                         @error('level') <p class="field-error">{{ $message }}</p> @enderror
                     </fieldset>
 
-                    <div class="max-w-xs">
+                    <div class="w-full max-w-xs">
                         <label for="years_experience" class="field-label">Années d'expérience</label>
                         <input wire:model="years_experience" id="years_experience" type="number" min="0" max="50" inputmode="numeric" class="field-input" placeholder="Ex. 3">
                         <p class="field-help">Mets 0 si tu débutes.</p>
@@ -257,8 +257,8 @@
                                     x-on:mousedown.prevent="choose(skill)" x-on:mouseenter="active = index"
                                     x-bind:class="index === active ? 'bg-violet/8' : ''"
                                     class="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-2 text-sm">
-                                    <span class="font-medium text-ink" x-text="skill.name"></span>
-                                    <span class="text-xs text-muted" x-text="skill.category"></span>
+                                    <span class="min-w-0 font-medium text-ink" x-text="skill.name"></span>
+                                    <span class="shrink-0 text-right text-xs text-muted" x-text="skill.category"></span>
                                 </li>
                             </template>
                         </ul>
@@ -298,7 +298,7 @@
 
                 {{-- Compétences choisies --}}
                 <div class="mt-8">
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                         <h3 class="text-sm font-semibold text-ink">Mes compétences</h3>
                         <p class="text-xs font-semibold text-muted">{{ count($skills) }}/{{ Profile::MAX_SKILLS }} · {{ $highlightedCount }}/{{ Profile::MAX_HIGHLIGHTED_SKILLS }} en avant</p>
                     </div>
@@ -354,7 +354,7 @@
                                                         'bg-line' => $option->rank() > $currentLevel->rank(),
                                                     ])></span>
                                                     <span @class([
-                                                        'mt-1.5 block rounded-md py-1 text-center text-xs transition peer-focus-visible:outline-2 peer-focus-visible:outline-violet',
+                                                        'mt-1.5 block rounded-md py-1 text-center text-[11px] leading-tight hyphens-auto break-words transition sm:text-xs peer-focus-visible:outline-2 peer-focus-visible:outline-violet',
                                                         'font-semibold text-violet' => $option === $currentLevel,
                                                         'text-muted hover:text-ink' => $option !== $currentLevel,
                                                     ])>{{ $option->label() }}</span>
@@ -376,11 +376,11 @@
                             @php $selectedInCategory = $category->skills->whereIn('id', $selectedIds)->count(); @endphp
                             <details wire:key="category-{{ $category->id }}" wire:ignore.self class="group rounded-lg border border-line bg-white">
                                 <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
-                                    <span>
+                                    <span class="min-w-0">
                                         {{ $category->name }}
                                         <span class="ml-1 font-normal text-muted">({{ $category->skills->count() }})</span>
                                     </span>
-                                    <span class="flex items-center gap-2">
+                                    <span class="flex shrink-0 items-center gap-2">
                                         @if ($selectedInCategory > 0)
                                             <span class="badge bg-violet/10 text-violet">{{ $selectedInCategory }} choisie{{ $selectedInCategory > 1 ? 's' : '' }}</span>
                                         @endif
@@ -439,14 +439,14 @@
 
                     <fieldset>
                         <legend class="field-label">Disponibilité</legend>
-                        <div class="grid gap-2 sm:grid-cols-3">
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
                             @foreach (Availability::cases() as $option)
                                 <label @class([
                                     'flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold transition',
                                     'border-violet bg-violet/5 text-ink ring-2 ring-violet/20' => $availability === $option->value,
                                     'border-line text-ink hover:border-violet/40' => $availability !== $option->value,
                                 ])>
-                                    <input type="radio" wire:model.live="availability" value="{{ $option->value }}" class="size-4 accent-violet">
+                                    <input type="radio" wire:model.live="availability" value="{{ $option->value }}" class="size-4 shrink-0 accent-violet">
                                     {{ $option->label() }}
                                 </label>
                             @endforeach
@@ -489,9 +489,9 @@
                                     <span class="field-label">Image</span>
                                     <div class="flex flex-wrap items-center gap-4">
                                         @if ($upload && method_exists($upload, 'isPreviewable') && $upload->isPreviewable())
-                                            <img src="{{ $upload->temporaryUrl() }}" alt="" class="h-20 w-32 rounded-xl object-cover">
+                                            <img src="{{ $upload->temporaryUrl() }}" alt="" class="h-20 w-32 max-w-full rounded-xl object-cover">
                                         @elseif ($project['image_path'])
-                                            <img src="{{ \App\Support\Media::url($project['image_path'], 320, 200) }}" alt="" class="h-20 w-32 rounded-xl object-cover">
+                                            <img src="{{ \App\Support\Media::url($project['image_path'], 320, 200) }}" alt="" class="h-20 w-32 max-w-full rounded-xl object-cover">
                                         @endif
                                         <label class="btn-secondary cursor-pointer text-sm">
                                             <input type="file" wire:model="projectImages.{{ $project['key'] }}" accept="image/jpeg,image/png,image/webp" class="sr-only">
@@ -521,7 +521,7 @@
             @if ($step === 6)
                 <p class="mt-1 text-sm text-muted">Où l'équipe peut voir ton travail en ligne.</p>
 
-                <div class="mt-6 grid gap-5 sm:grid-cols-2">
+                <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
                     @foreach (['linkedin_url' => ['LinkedIn', 'linkedin.com/in/ton-nom'], 'github_url' => ['GitHub', 'github.com/ton-pseudo'], 'portfolio_url' => ['Portfolio', 'ton-site.com'], 'behance_url' => ['Behance', 'behance.net/ton-pseudo']] as $field => [$label, $placeholder])
                         <div>
                             <label for="{{ $field }}" class="field-label">{{ $label }}</label>
@@ -543,7 +543,7 @@
             {{-- Navigation entre étapes --}}
             <div class="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                 @if ($step > 1)
-                    <button type="button" wire:click="goToStep({{ $step - 1 }})" class="btn-secondary">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Précédent</button>
+                    <button type="button" wire:click="goToStep({{ $step - 1 }})" class="btn-secondary w-full sm:w-auto">@svg('heroicon-m-arrow-left', 'size-4', ['aria-hidden' => 'true']) Précédent</button>
                 @else
                     <span class="hidden sm:block"></span>
                 @endif
